@@ -1,0 +1,18 @@
+# Use an official OpenJDK runtime as a parent image
+FROM openjdk:17-jdk-alpine
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy wait-for-it.sh script
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
+
+# Copy the project’s JAR file into the container
+COPY target/*.jar app.jar
+
+# Expose the port on which the Spring Boot application will run
+EXPOSE 8080
+
+# Run the JAR file, waiting for PostgreSQL to be ready
+ENTRYPOINT ["wait-for-it.sh", "postgres:5432", "--", "java", "-jar", "/app.jar"]
