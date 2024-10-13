@@ -18,7 +18,7 @@
 ## 4. Data Modelation
 
 <p align="center">
-  <img  src="https://github.com/">
+  <img  src="./docs/data_model.png">
 </p>
 
 ## 5. Repository Organization:
