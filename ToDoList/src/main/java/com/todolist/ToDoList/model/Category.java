@@ -1,24 +1,23 @@
 package com.todolist.ToDoList.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Locale.Category;
-import java.util.UUID;
-
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tasks")
-public class Task {
+@Table(name = "category")
+public class Category {
 
     @Id
     @GeneratedValue
@@ -31,34 +30,19 @@ public class Task {
     @Column(name = "description", nullable = false, length = 255)
     private String description;
 
-    @Column(name = "deadline", nullable = false)
-    private LocalDateTime deadline;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private Status status;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority", nullable = false)
-    private Priority priority;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks;
 
-    public Task(String title, String description, LocalDateTime deadline, Status status, Priority priority) {
+    public Category(String title, String description) {
         this.title = title;
         this.description = description;
-        this.deadline = deadline;
-        this.status = status;
-        this.priority = priority;
     }
 }

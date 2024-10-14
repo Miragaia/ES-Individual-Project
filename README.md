@@ -36,3 +36,12 @@
 | Acceptance criteria as "Given (...) when (...) then (...)" |
 | INVEST methodology |
 | Estimated priority, given by the position in the backlog |
+
+## 8. Definition of Done
+| Defiinition of Done|
+|:---:|
+| Developed |
+| Tested |
+| Documented |
+| Compliant with Acceptance Criteria |
+| Merged into central branch ("dev") |
