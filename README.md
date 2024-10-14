@@ -26,3 +26,13 @@
 ## 6. API Documentation
 
 - [**Swagger**]()
+
+## 7. Definition of Ready
+| Defiinition of Ready|
+|:---:|
+| Formatted as "As a (...), I want (...) so that (...)" |
+| Short and self-explanatory |
+| Defined story point, with a maximum of 3-5 |
+| Acceptance criteria as "Given (...) when (...) then (...)" |
+| INVEST methodology |
+| Estimated priority, given by the position in the backlog |
