@@ -1,52 +1,43 @@
 package com.todolist.ToDoList.service;
 
-import com.todolist.ToDoList.exception.ResourceNotFoundException;
 import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
+
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
     public Task createTask(Task task) {
         return taskRepository.save(task);
+    }
+
+    public Task getTaskById(UUID taskId) {
+        return taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+    public List<Task> getTasksByUserId(UUID userId) {
+        return taskRepository.findByUserId(userId);
     }
 
-    public Task updateTask(Long id, Task taskDetails) {
-        Task task = getTaskById(id);
-        task.setTitle(taskDetails.getTitle());
-        task.setDescription(taskDetails.getDescription());
-        task.setCompleted(taskDetails.getCompleted());
-        task.setDeadline(taskDetails.getDeadline());
-        task.setPriority(taskDetails.getPriority());
-        return taskRepository.save(task);
+    public List<Task> getTasksByUserAndCategory(UUID userId, UUID categoryId) {
+        return taskRepository.findByUserIdAndCategoryId(userId, categoryId);
     }
 
-    public void deleteTask(Long id) {
-        Task task = getTaskById(id);
-        taskRepository.delete(task);
-    }
-
-    public List<Task> getTasksByCompletionStatus(Boolean completed) {
-        return taskRepository.findByCompleted(completed);
-    }
-
-    public List<Task> getTasksByPriority(String priority) {
-        return taskRepository.findByPriority(priority);
+    public void deleteTask(UUID taskId) {
+        taskRepository.deleteById(taskId);
     }
 }
