@@ -13,21 +13,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.todolist.ToDoList.service.UserService;
+import com.todolist.ToDoList.service.JwtService;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication Controller", description = "Public API for managing user authentication")
 public class AuthenticationController {
     private final UserService userService;
+    private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    public AuthenticationController(UserService userService) {
+    public AuthenticationController(UserService userService, JwtService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
+
     @Operation(summary = "Create a new user", description = "Creates a new user in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
@@ -57,6 +65,7 @@ public class AuthenticationController {
         logger.info("User created successfully");
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
+
     @Operation(summary = "Login a user", description = "Logs in a user to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
@@ -64,22 +73,28 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@Parameter(description = "User email") @RequestParam String email,
+        public ResponseEntity<Map<String, String>> loginUser(
+            @Parameter(description = "User email") @RequestParam String email,
             @Parameter(description = "User password") @RequestParam String password) {
+
         logger.info("Attempting to login a user");
-        // Check if the user exists by its email
-        if (!userService.userExistsByEmail(email)) {
-            logger.error("User not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        // Get the user by its email
-        User user = userService.getUserByEmail(email);
+
+        UserDetails user = userService.loadUserByEmail(email);
+
         // Check if the password is correct
         if (!userService.isPasswordCorrect(password, user.getPassword())) {
             logger.error("Invalid password");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        logger.info("User logged in successfully");
-        return new ResponseEntity<>(user, HttpStatus.OK); // TODO return a token
+        
+        // Generate a JWT token for the user
+        String token = jwtService.generateToken(user);
+
+        // Return the token in the response's body
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+
+        logger.info("User logged in successfully, JWT token generated");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -7,6 +7,10 @@ import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +26,20 @@ public class UserService {
     private String EMAIL_REGEX = "[a-z][a-z0-9._+-]+@[a-z]+\\.[a-z]{2,6}";
 
     private final UserRepository userRepository;
+
+    // Load user by email for JWT authentication
+    public UserDetails loadUserByEmail(String email) {
+        User optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(optionalUser.getEmail())
+                .password(optionalUser.getPassword())
+                .build();
+    }
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
