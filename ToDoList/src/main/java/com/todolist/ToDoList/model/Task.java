@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Locale.Category;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;

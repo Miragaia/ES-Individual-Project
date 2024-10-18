@@ -38,6 +38,6 @@ public class TaskService {
     }
 
     public void deleteTask(UUID taskId) {
-        taskRepository.deleteById(taskId);
+        taskRepository.deleteTaskById(taskId);
     }
 }
