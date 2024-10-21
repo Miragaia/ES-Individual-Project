@@ -10,12 +10,15 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // JWT token (to be replaced with a real authentication method)
     const token = localStorage.getItem('token');  // Assuming you store the token in localStorage after login
+    console.log('Token:', token);
 
     // Set up headers with Authorization token
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
     };
+
+    console.log('Headers:', headers);
 
     // Fetch tasks from the server
     function fetchTasks() {
@@ -57,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const description = document.getElementById("taskDescription").value;
         const deadline = document.getElementById("taskDeadline").value;
         const priority = document.getElementById("taskPriority").value;
-
+    
         const newTask = {
             title: title,
             description: description,
@@ -65,13 +68,31 @@ document.addEventListener('DOMContentLoaded', function () {
             priority: priority
         };
 
+        // Get the JWT token
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("No JWT token found. User is not logged in.");
+            return;
+        }
+    
         fetch(API_URL, {
             method: 'POST',
-            headers: headers,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  // Attach the token to the request
+            },
             body: JSON.stringify(newTask)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Check if the response has content before parsing
+            return response.text().then(text => text ? JSON.parse(text) : {});
+        })
         .then(data => {
+            console.log("Task added successfully:", data);
             // Re-fetch tasks to update the table with the newly added task
             fetchTasks();
             closeTaskModal();  // Close the modal

@@ -50,7 +50,7 @@ public class Task {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     public Task(String title, String description, LocalDateTime deadline, Status status, Priority priority) {

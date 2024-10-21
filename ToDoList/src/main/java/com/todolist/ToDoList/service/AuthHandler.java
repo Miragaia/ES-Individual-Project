@@ -20,7 +20,9 @@ public class AuthHandler {
 
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
-            return userService.findByUsername(username);  // Fetch the User entity by username
+            System.out.println("Username: " + username);
+            System.out.println("User" + userService.getUserByEmail(username));
+            return userService.getUserByEmail(username);  // Fetch the User entity by username
         }
 
         return null;

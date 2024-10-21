@@ -1,5 +1,6 @@
 package com.todolist.ToDoList.controller;
 
+import com.todolist.ToDoList.model.Status;
 import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.service.AuthHandler;
@@ -31,13 +32,14 @@ public class TaskController {
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
-        
+        System.out.println("User: " + user);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         
         // Set the user who created the task
         task.setUser(user);
+        task.setStatus(Status.TO_DO);
         Task createdTask = taskService.createTask(task);
         return ResponseEntity.ok(createdTask);
     }
