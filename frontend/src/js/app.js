@@ -57,9 +57,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add a new task
     addTaskBtn.addEventListener("click", function () {
         const title = document.getElementById("taskTitle").value;
-        const description = document.getElementById("taskDescription").value;
+        const description = document.getElementById("taskDescription").value
         const deadline = document.getElementById("taskDeadline").value;
         const priority = document.getElementById("taskPriority").value;
+        console.log("deadline:", deadline);
+
+        if (!deadline) {
+            console.error("Deadline is not selected.");
+        }
     
         const newTask = {
             title: title,
@@ -67,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function () {
             deadline: deadline,
             priority: priority
         };
+
+        console.log("New task:", newTask);
 
         // Get the JWT token
         const token = localStorage.getItem("token");
