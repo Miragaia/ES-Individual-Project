@@ -34,14 +34,20 @@
         <div class="modal-content">
             <span id="closeTaskModalBtn" class="close">&times;</span>
             <h2>Create New Task</h2>
+
             <input type="text" id="taskTitle" placeholder="Task Title">
             <textarea id="taskDescription" placeholder="Task Description"></textarea>
-            <input type="datetime-local" id="taskDeadline">
+
+            
+            <label for="taskDeadline">Deadline:</label>
+            <input type="date" id="taskDeadline" placeholder="Select Deadline">
+
             <select id="taskPriority">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
             </select>
+
             <button id="addTaskBtn">Add Task</button>
         </div>
     </div>

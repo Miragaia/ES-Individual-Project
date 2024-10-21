@@ -1,7 +1,9 @@
 package com.todolist.ToDoList.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +33,7 @@ public class Task {
     private String description;
 
     @Column(name = "deadline", nullable = false)
-    private LocalDateTime deadline;
+    private LocalDate deadline;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -50,10 +52,10 @@ public class Task {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
-    public Task(String title, String description, LocalDateTime deadline, Status status, Priority priority) {
+    public Task(String title, String description, LocalDate deadline, Status status, Priority priority) {
         this.title = title;
         this.description = description;
         this.deadline = deadline;

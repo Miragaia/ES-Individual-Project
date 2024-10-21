@@ -30,12 +30,6 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Category>> getCategoriesByUserId(@RequestParam UUID userId) {
-        List<Category> categories = categoryService.getCategoriesByUserId(userId);
-        return ResponseEntity.ok(categories);
-    }
-
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();
