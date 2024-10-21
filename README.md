@@ -41,7 +41,6 @@
 | Defiinition of Done|
 |:---:|
 | Developed |
-| Tested |
 | Documented |
 | Compliant with Acceptance Criteria |
 | Merged into central branch ("dev") |
