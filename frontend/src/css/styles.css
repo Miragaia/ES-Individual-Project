@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-    max-width: 400px;
+    max-width: 800px; /* Increased the width of the container */
     margin: 50px auto;
     padding: 20px;
     background-color: #fff;
@@ -43,9 +43,9 @@ button {
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #218838;
-}
+/* button:hover {
+    background-color: #218838
+} */
 
 #message {
     text-align: center;
@@ -54,18 +54,24 @@ button:hover {
 
 
 /* Task Table Styling */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Ensures the table is scrollable if content overflows */
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    overflow-x: auto;
+    table-layout: fixed; /* Ensures table takes up full width */
 }
 
 th, td {
     padding: 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    word-wrap: break-word; /* Ensures long content wraps within the cell */
 }
 
 th {
@@ -157,6 +163,50 @@ input, textarea, select {
 textarea {
     resize: vertical;
 }
+/* Action Buttons */
+.action-btn {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Edit Button (Blue) */
+.edit-btn {
+    background-color: #007bff;
+}
+.edit-btn i {
+    margin-right: 5px;
+}
+
+/* Complete Button (Green) */
+.complete-btn {
+    background-color: #28a745;
+}
+.complete-btn i {
+    margin-right: 5px;
+}
+
+/* Delete Button (Red) */
+.delete-btn {
+    background-color: #dc3545;
+}
+.delete-btn i {
+    margin-right: 5px;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
+}
+
+/* Use FontAwesome for Icons */
+.fa {
+    font-size: 14px;
+}
+
 
 /* Slide Down Animation for Modal */
 @keyframes slideDown {

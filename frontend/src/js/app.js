@@ -1,12 +1,18 @@
+let tasksData = [];  // Global variable to store tasks
+
 document.addEventListener('DOMContentLoaded', function () {
     const taskTableBody = document.querySelector("#taskTable tbody");
     const taskModal = document.getElementById("taskModal");
     const openTaskModalBtn = document.getElementById("openTaskModalBtn");
+    const taskModalEdit = document.getElementById("taskModalEdit");
+    const closeTaskModalBtnEdit = document.getElementById("closeTaskModalBtnEdit");
     const closeTaskModalBtn = document.getElementById("closeTaskModalBtn");
     const addTaskBtn = document.getElementById("addTaskBtn");
+    const categoryModal = document.getElementById("categoryModal");  // For adding or creating categories
 
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
+    const CATEGORY_URL = "http://localhost:8080/api/categories";
     
     // JWT token (to be replaced with a real authentication method)
     const token = localStorage.getItem('token');  // Assuming you store the token in localStorage after login
@@ -28,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
-            renderTasks(data);
+            tasksData = data;  // Store tasks globally
+            renderTasks(tasksData);
         })
         .catch(error => console.error('Error fetching tasks:', error));
     }
@@ -40,13 +47,26 @@ document.addEventListener('DOMContentLoaded', function () {
         tasks.forEach((task) => {
             const row = document.createElement('tr');
 
+            // Check if the category exists
+            const category = task.category ? task.category.title : `<button onclick="openCategoryModal('${task.id}')">Add Category</button>`;
+
             row.innerHTML = `
                 <td>${task.title}</td>
                 <td>${task.description}</td>
                 <td>${task.priority}</td>
-                <td>${new Date(task.deadline).toLocaleString()}</td>
+                <td>${task.deadline.toLocaleString()}</td>
+                <td>${task.status}</td>
+                <td>${category}</td>
                 <td>
-                    <button onclick="deleteTask('${task.id}')">Delete</button>
+                    <button class="action-btn edit-btn" onclick="openTaskModalEdit('${task.id}')">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="action-btn complete-btn" onclick="completeTask('${task.id}')">
+                        <i class="fa fa-check"></i>
+                    </button>
+                    <button class="action-btn delete-btn" onclick="deleteTask('${task.id}')">
+                        <i class="fa fa-times"></i>
+                    </button>
                 </td>
             `;
 
@@ -54,10 +74,79 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+   // Open the task modal for editing and populate it
+    window.openTaskModalEdit = function (taskId) {
+        const task = tasksData.find(t => t.id === taskId); // Find the task by its ID
+        if (!task) return;
+
+        // Populate the modal with task details
+        document.getElementById("taskTitleEdit").value = task.title;
+        document.getElementById("taskDescriptionEdit").value = task.description;
+        document.getElementById("taskDeadlineEdit").value = task.deadline.split('T')[0]; // Convert to yyyy-mm-dd format
+        document.getElementById("taskPriorityEdit").value = task.priority;
+
+        // Open the edit modal
+        taskModalEdit.style.display = "block";
+
+        // Modify the existing task when saving
+        document.getElementById("editTaskBtn").onclick = () => {
+            task.title = document.getElementById("taskTitleEdit").value;
+            task.description = document.getElementById("taskDescriptionEdit").value;
+            task.deadline = document.getElementById("taskDeadlineEdit").value;
+            task.priority = document.getElementById("taskPriorityEdit").value;
+
+            // Send updated task to server
+            fetch(`${API_URL}/${taskId}`, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(task)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Task updated successfully:", data);
+                closeTaskModalEdit();
+                fetchTasks(); // Re-fetch tasks after update
+            })
+            .catch(error => console.error('Error updating task:', error));
+        };
+    }
+
+
+    // Function to complete a task
+    window.completeTask = function(taskId) {
+        const task = tasksData.find(t => t.id === taskId); // Find the task by its ID
+        if (!task) return;
+
+        task.status = "COMPLETED"; // Update the task status
+
+        // Send status update to server
+        fetch(`${API_URL}/${taskId}`, {
+            method: 'PATCH',
+            headers: headers,
+            body: JSON.stringify({ status: "COMPLETED" })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Task completed successfully:", data);
+            fetchTasks(); // Re-fetch tasks after marking as complete
+        })
+        .catch(error => console.error('Error completing task:', error));
+    }
+
     // Add a new task
     addTaskBtn.addEventListener("click", function () {
         const title = document.getElementById("taskTitle").value;
-        const description = document.getElementById("taskDescription").value
+        const description = document.getElementById("taskDescription").value;
         const deadline = document.getElementById("taskDeadline").value;
         const priority = document.getElementById("taskPriority").value;
         console.log("deadline:", deadline);
@@ -100,8 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             console.log("Task added successfully:", data);
-            // Re-fetch tasks to update the table with the newly added task
-            fetchTasks();
+            fetchTasks(); // Re-fetch tasks after adding
             closeTaskModal();  // Close the modal
         })
         .catch(error => console.error('Error adding task:', error));
@@ -115,8 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => {
             if (response.ok) {
-                // Re-fetch tasks to update the table after deletion
-                fetchTasks();
+                fetchTasks(); // Re-fetch tasks after deletion
             } else {
                 console.error('Error deleting task:', response.statusText);
             }
@@ -129,6 +216,22 @@ document.addEventListener('DOMContentLoaded', function () {
         taskModal.style.display = "block";
     });
 
+    // Close modal for editing
+    closeTaskModalBtnEdit.addEventListener("click", function () {
+        closeTaskModalEdit();
+    });
+
+    // Close task modal edit function
+    function closeTaskModalEdit() {
+        taskModalEdit.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("taskTitleEdit").value = '';
+        document.getElementById("taskDescriptionEdit").value = '';
+        document.getElementById("taskDeadlineEdit").value = '';
+        document.getElementById("taskPriorityEdit").value = 'LOW';
+    }
+
     // Close the modal
     closeTaskModalBtn.addEventListener("click", function () {
         closeTaskModal();
@@ -136,6 +239,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Close modal when clicking outside of it
     window.onclick = function(event) {
+        if (event.target === taskModalEdit) {
+            closeTaskModalEdit();
+        }
         if (event.target === taskModal) {
             closeTaskModal();
         }

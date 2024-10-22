@@ -40,4 +40,14 @@ public class TaskService {
     public void deleteTask(UUID taskId) {
         taskRepository.deleteTaskById(taskId);
     }
+
+    public Task updateTask(Task existingTask, Task task) {
+        existingTask.setTitle(task.getTitle());
+        existingTask.setDescription(task.getDescription());
+        existingTask.setDeadline(task.getDeadline());
+        existingTask.setCategory(task.getCategory());
+        existingTask.setStatus(task.getStatus());
+        existingTask.setPriority(task.getPriority());
+        return taskRepository.save(existingTask);
+    }
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -13,20 +14,24 @@
         <button id="openTaskModalBtn" class="create-task-btn">Create Task</button>
 
         <!-- Table to display tasks -->
-        <table id="taskTable">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Priority</th>
-                    <th>Deadline</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Task rows will be dynamically rendered here -->
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table id="taskTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Category</th>
+                        <th>Action</th> <!-- Action column for buttons -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Task rows will be dynamically rendered here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pop-up Modal for Task Creation -->
@@ -38,7 +43,6 @@
             <input type="text" id="taskTitle" placeholder="Task Title">
             <textarea id="taskDescription" placeholder="Task Description"></textarea>
 
-            
             <label for="taskDeadline">Deadline:</label>
             <input type="date" id="taskDeadline" placeholder="Select Deadline">
 
@@ -51,6 +55,24 @@
             <button id="addTaskBtn">Add Task</button>
         </div>
     </div>
+
+    <!-- Task Edit Modal -->
+    <div id="taskModalEdit" class="modal">
+        <div class="modal-content">
+            <span id="closeTaskModalBtnEdit" class="close">&times;</span>
+            <h2>Edit Task</h2>
+            <input type="text" id="taskTitleEdit" placeholder="Task Title">
+            <textarea id="taskDescriptionEdit" placeholder="Task Description"></textarea>
+            <input type="date" id="taskDeadlineEdit" placeholder="Select Deadline">
+            <select id="taskPriorityEdit">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+            <button id="editTaskBtn">Save Changes</button>
+        </div>
+    </div>
+
 
     <script src="../js/app.js"></script>
 </body>
