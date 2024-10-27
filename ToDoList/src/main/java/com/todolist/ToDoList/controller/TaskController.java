@@ -44,13 +44,37 @@ public class TaskController {
         return ResponseEntity.ok(createdTask);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@RequestParam UUID id) {
-        // Get the task
-        Task task = taskService.getTaskById(id);
+    // Edit Task - requires authentication and ownership
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> editTask(@PathVariable UUID id, @RequestBody Task task) {
 
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
+
+        // Check if the task belongs to the authenticated user
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if user is not authenticated
+        }
+
+        // Get the task and check if it belongs to the user
+        Task existingTask = taskService.getTaskById(id);
+        if (!existingTask.getUser().getId().equals(user.getId())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if not the owner
+        }
+
+        Task updatedTask = taskService.updateTask(existingTask, task);
+        return ResponseEntity.ok(updatedTask);
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> getTaskById(@RequestParam UUID id) {
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser();
+
+        // Get the task
+        Task task = taskService.getTaskById(id);
 
         // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
