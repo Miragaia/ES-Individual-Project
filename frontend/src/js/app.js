@@ -84,16 +84,34 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("taskDescriptionEdit").value = task.description;
         document.getElementById("taskDeadlineEdit").value = task.deadline.split('T')[0]; // Convert to yyyy-mm-dd format
         document.getElementById("taskPriorityEdit").value = task.priority;
+        document.getElementById("taskStatus").value = task.status;
 
         // Open the edit modal
         taskModalEdit.style.display = "block";
 
         // Modify the existing task when saving
         document.getElementById("editTaskBtn").onclick = () => {
+            // Populate task object with updated values from the modal
             task.title = document.getElementById("taskTitleEdit").value;
             task.description = document.getElementById("taskDescriptionEdit").value;
-            task.deadline = document.getElementById("taskDeadlineEdit").value;
+            task.deadline = document.getElementById("taskDeadlineEdit").value;  
             task.priority = document.getElementById("taskPriorityEdit").value;
+            task.status = document.getElementById("taskStatus").value;
+
+            // Today's date in mm-dd-yyyy format
+            const now = new Date().toISOString().split("T")[0].split("-").join("-");
+            console.log("deadline:", task.deadline);
+            console.log("now:", now);
+
+            // Ensure no fields are empty and deadline is a future date
+            if (!task.title || !task.description || !task.deadline || !task.priority || !task.status) {
+                alert("All fields must be filled out.");
+                return;
+            }
+            if (task.deadline <= now) {
+                alert("The deadline must be a future date.");
+                return;
+            }
 
             // Send updated task to server
             fetch(`${API_URL}/${taskId}`, {
@@ -114,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => console.error('Error updating task:', error));
         };
+
     }
 
 
