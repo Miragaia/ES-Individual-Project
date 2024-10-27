@@ -3,6 +3,7 @@ package com.todolist.ToDoList.service;
 import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.repository.TaskRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class TaskService {
         return taskRepository.findByUserIdAndCategoryId(userId, categoryId);
     }
 
+    @Transactional
     public void deleteTask(UUID taskId) {
         taskRepository.deleteTaskById(taskId);
     }

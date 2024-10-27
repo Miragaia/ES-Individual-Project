@@ -27,7 +27,7 @@ public class TaskController {
         this.authHandler = authHandler;
     }
 
-    // Create Task - requires authentication
+    // Create Task - requires authentication    - done
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
         // Get the currently authenticated user
@@ -44,7 +44,7 @@ public class TaskController {
         return ResponseEntity.ok(createdTask);
     }
 
-    // Edit Task - requires authentication and ownership
+    // Edit Task - requires authentication and ownership    - done
     @PutMapping("/{id}")
     public ResponseEntity<Task> editTask(@PathVariable UUID id, @RequestBody Task task) {
 
@@ -84,7 +84,7 @@ public class TaskController {
         return ResponseEntity.ok(task);
     }
 
-    // Get All Tasks for Authenticated User
+    // Get All Tasks for Authenticated User - done
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser() {
         // Get the currently authenticated user
@@ -99,7 +99,7 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    // Get Tasks by User and Category - Requires authentication and ownership
+    // Get Tasks by Category - TO DO
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<Task>> getTasksByCategory(@RequestParam UUID categoryId) {
         // Get the currently authenticated user
@@ -114,22 +114,19 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/user/{userId}/category/{categoryId}")
-    public ResponseEntity<List<Task>> getTasksByUserAndCategory(@RequestParam UUID userId, @RequestParam UUID categoryId) {
-        List<Task> tasks = taskService.getTasksByUserAndCategory(userId, categoryId);
-        return ResponseEntity.ok(tasks);
-    }
-
-
+    // Delete Task - - to do
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@RequestParam UUID id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
 
-        Task task = taskService.getTaskById(id);
-
+        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
 
+        // Get the task
+        Task task = taskService.getTaskById(id);
+
+        // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if not the owner
         }
 
         taskService.deleteTask(id);

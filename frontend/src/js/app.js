@@ -100,8 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Today's date in mm-dd-yyyy format
             const now = new Date().toISOString().split("T")[0].split("-").join("-");
-            console.log("deadline:", task.deadline);
-            console.log("now:", now);
 
             // Ensure no fields are empty and deadline is a future date
             if (!task.title || !task.description || !task.deadline || !task.priority || !task.status) {
@@ -145,9 +143,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Send status update to server
         fetch(`${API_URL}/${taskId}`, {
-            method: 'PATCH',
+            method: 'PUT',
             headers: headers,
-            body: JSON.stringify({ status: "COMPLETED" })
+            body: JSON.stringify(task)
         })
         .then(response => {
             if (!response.ok) {
@@ -167,12 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const title = document.getElementById("taskTitle").value;
         const description = document.getElementById("taskDescription").value;
         const deadline = document.getElementById("taskDeadline").value;
-        const priority = document.getElementById("taskPriority").value;
-        console.log("deadline:", deadline);
-
-        if (!deadline) {
-            console.error("Deadline is not selected.");
-        }
+        const priority = document.getElementById("taskPriority").value; 
     
         const newTask = {
             title: title,
@@ -188,6 +181,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!token) {
             console.error("No JWT token found. User is not logged in.");
+            return;
+        }
+
+        // Today's date in mm-dd-yyyy format
+        const now = new Date().toISOString().split("T")[0].split("-").join("-");
+
+        // Ensure no fields are empty and deadline is a future date
+        if (!newTask.title || !newTask.description || !newTask.deadline || !newTask.priority) {
+            alert("All fields must be filled out.");
+            return;
+        }
+        if (newTask.deadline <= now) {
+            alert("The deadline must be a future date.");
             return;
         }
     
