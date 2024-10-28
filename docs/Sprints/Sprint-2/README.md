@@ -10,14 +10,14 @@ This document provides an overview of the work completed, challenges faced, and 
 - Implement core task management features to enable users to create, edit, complete, and manage tasks with deadlines, priorities, and visibility.
 
 ### Completed Work
-- **Task Ownership**:
+- [Task Ownership:](../../Epics/Task_Ownership/README.md)
   - User Register
   - User Login
   - JWT Integration
   - Login & Register Frontend 
-- **Project Configuration**:
+- [Project Configuration:](../../Epics/Project_Configuration/README.md)
   - Authentication and Security Configuration
-- **Project Setup**:
+- [Project Setup:](../../Epics/Project_Setup/README.md)
   - Setup Repositories, Services, Controllers
 
 ### Outcomes

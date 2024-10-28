@@ -13,11 +13,12 @@ This document provides an overview of the work completed, challenges faced, and 
 
 ### Completed Work
 - Configured project repository structure.
-- Set up directories for various epics, user stories, and documentation:
-  - Setup Data Models
-  - Database Modelation
+- [Project Setup:](../../Epics/Project_Setup/README.md) 
+  - Set up directories for various epics, user stories, and documentation:
+    - Setup Data Models
+    - Database Modelation
   - Web UI Initial Design
-- Established basic project configuration, including:
+- [Project Configuration:](../../Epics/Project_Configuration/README.md)
   - Version control with Git.
   - Initial README files for main epics.
   - JIRA - Project structure to support task management, ownership, and prioritization features.
