@@ -98,4 +98,8 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public boolean userExistsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }

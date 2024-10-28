@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     messageDiv.textContent = 'Registration successful! You can now login.';
                     messageDiv.style.color = 'green';
                 } else if (response.status === 409) {
-                    messageDiv.textContent = 'Email already exists!';
+                    messageDiv.textContent = 'Username or Email already exists!';
                     messageDiv.style.color = 'red';
                 } else {
                     messageDiv.textContent = 'Failed to register. Please try again.';

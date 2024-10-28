@@ -56,6 +56,13 @@ public class AuthenticationController {
             logger.error("Invalid user");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        //confirm username already exists
+        if (userService.userExistsByUsername(user.getUsername())) {
+            logger.error("User username already exists");
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
         // Check if the user already exists by its email
         if (userService.userExistsByEmail(user.getEmail())) {
             logger.error("User email already exists");
