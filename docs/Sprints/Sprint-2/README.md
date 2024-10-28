@@ -6,6 +6,14 @@ This document provides an overview of the work completed, challenges faced, and 
 
 ## Sprint 2: User Authentication
 
+### Story Points
+- **To Do:** 6 points
+- **In Progress:** 7 points
+- **Done:** 14 points
+
+### User Stories
+- **Done:** 2
+
 ### Sprint Goals
 - Implement core task management features to enable users to create, edit, complete, and manage tasks with deadlines, priorities, and visibility.
 

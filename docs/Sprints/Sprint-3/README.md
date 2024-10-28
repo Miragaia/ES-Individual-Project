@@ -6,6 +6,14 @@ This document provides an overview of the work completed, challenges faced, and 
 
 ## Sprint 3: Task Management Features
 
+### Story Points
+- **To Do:** 0 points
+- **In Progress:** 0 points
+- **Done:** 21 points
+
+### User Stories
+- **Done:** 7
+
 ### Sprint Goals
 - Implement core task management features to enable users to create, edit, complete, and manage tasks with deadlines, priorities, and visibility.
 

@@ -6,6 +6,14 @@ This document provides an overview of the work completed, challenges faced, and 
 
 ## Sprint 1: Project Setup and Configuration
 
+### Story Points
+- **To Do:** 0 points
+- **In Progress:** 0 points
+- **Done:** 7 points
+
+### User Stories
+- **Done:** 0
+
 ### Sprint Goals
 - Set up project environment and configuration.
 - Prepare foundational tools and structure for future development.
