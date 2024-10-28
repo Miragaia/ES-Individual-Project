@@ -15,7 +15,7 @@ This document provides an overview of the work completed, challenges faced, and 
 - **Done:** 2
 
 ### Sprint Goals
-- Implement core task management features to enable users to create, edit, complete, and manage tasks with deadlines, priorities, and visibility.
+- Implement User Authentication and start project backend
 
 ### Completed Work
 - [Task Ownership:](../../Epics/Task_Ownership/README.md)
