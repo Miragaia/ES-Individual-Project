@@ -5,10 +5,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const taskModal = document.getElementById("taskModal");
     const openTaskModalBtn = document.getElementById("openTaskModalBtn");
     const taskModalEdit = document.getElementById("taskModalEdit");
+    const openCategoryModalBtn = document.getElementById("openCategoryModalBtn");
     const closeTaskModalBtnEdit = document.getElementById("closeTaskModalBtnEdit");
     const closeTaskModalBtn = document.getElementById("closeTaskModalBtn");
+    const closeCatModalBtn = document.getElementById("closeCatModalBtn");
     const addTaskBtn = document.getElementById("addTaskBtn");
-    const categoryModal = document.getElementById("categoryModal");  // For adding or creating categories
+    const categoryModal = document.getElementById("catModal");  // For adding or creating categories
+    const addCatBtn = document.getElementById("addCatBtn");
 
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
@@ -220,6 +223,60 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error adding task:', error));
     });
 
+
+
+    // Add a new Category
+    addCatBtn.addEventListener("click", function () {
+        const title = document.getElementById("catTitle").value;
+        const description = document.getElementById("catDescription").value;
+    
+        const newCat = {
+            title: title,
+            description: description,
+        };
+
+        console.log("New Category:", newCat);
+
+        // Get the JWT token
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("No JWT token found. User is not logged in.");
+            return;
+        }
+
+        // Ensure no fields are empty and deadline is a future date
+        if (!newCat.title || !newCat.description) {
+            alert("All fields must be filled out.");
+            return;
+        }
+
+        fetch(CATEGORY_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  // Attach the token to the request
+            },
+            body: JSON.stringify(newCat)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Check if the response has content before parsing
+            return response.text().then(text => text ? JSON.parse(text) : {});
+        })
+        .then(data => {
+            console.log("Category added successfully:", data);
+            fetchTasks(); // Re-fetch tasks after adding
+            closeCatModal();  // Close the modal
+        })
+        .catch(error => console.error('Error adding Category:', error));
+    });
+
+
+
+
     // Delete a task
     window.deleteTask = function (taskId) {
         fetch(`${API_URL}/${taskId}`, {
@@ -246,6 +303,14 @@ document.addEventListener('DOMContentLoaded', function () {
         closeTaskModalEdit();
     });
 
+    openCategoryModalBtn.addEventListener("click", function () {
+        categoryModal.style.display = "block";
+    });
+
+    closeCatModalBtn.addEventListener("click", function () {
+        closeCatModal();
+    });
+
     // Close task modal edit function
     function closeTaskModalEdit() {
         taskModalEdit.style.display = "none";
@@ -270,6 +335,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target === taskModal) {
             closeTaskModal();
         }
+        if (event.target === categoryModal) {
+            closeCatModal();
+        }
     };
 
     // Close task modal function
@@ -281,6 +349,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("taskDescription").value = '';
         document.getElementById("taskDeadline").value = '';
         document.getElementById("taskPriority").value = 'LOW';
+    }
+
+    function closeCatModal() {
+        categoryModal.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("catTitle").value = '';
+        document.getElementById("catDescription").value = '';
+
     }
 
     // Fetch and render tasks when the page loads

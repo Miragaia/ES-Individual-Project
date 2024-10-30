@@ -12,6 +12,7 @@
         <h1>Your To-Do List</h1>
         
         <button id="openTaskModalBtn" class="create-task-btn">Create Task</button>
+        <button id="openCategoryModalBtn" class="create-category-btn">Create Category</button>
 
         <!-- Table to display tasks -->
         <div class="table-container">
@@ -75,6 +76,19 @@
                 <option value="COMPLETED">Completed</option>
             </select>
             <button id="editTaskBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <!--Create Category Modal-->
+    <div id="catModal" class="modal">
+        <div class="modal-content">
+            <span id="closeCatModalBtn" class="close">&times;</span>
+            <h2>Create New Category</h2>
+
+            <input type="text" id="catTitle" placeholder="Category Title">
+            <textarea id="catDescription" placeholder="Category Description"></textarea>
+
+            <button id="addCatBtn">Add Category</button>
         </div>
     </div>
 

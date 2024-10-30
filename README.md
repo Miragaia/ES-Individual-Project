@@ -1,13 +1,17 @@
 # ES-Individual-Project
 
 ## 1. Notes:
-* **Jira** [Link](https://es-ip-2425.atlassian.net/jira/software/projects/EIT/boards/2/backlog)
+* **Jira** [Backlog](https://es-ip-2425.atlassian.net/jira/software/projects/EIT/boards/2/backlog)
+* **Demo** [Video]()
 
 ## 2. Description:
 - **Product Concept:**
     - To-Do List App Project, complying with Agile Software development and AWS cloud deployment
 
-- **Documentation at Github:** [Folder](https://github.com/)
+- **Documentation at Github:** 
+  - [Sprints](https://github.com/Miragaia/ES-Individual-Project/tree/dev/docs/Sprints)
+  - [Epics](https://github.com/Miragaia/ES-Individual-Project/tree/dev/docs/Sprints)
+    - **Note:** Inside each Epic there is the User Stories Documentation
 
 ## 3. Architecture
 

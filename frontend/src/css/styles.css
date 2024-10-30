@@ -43,6 +43,17 @@ button {
     cursor: pointer;
 }
 
+#openCategoryModalBtn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6f00;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
 /* button:hover {
     background-color: #218838
 } */

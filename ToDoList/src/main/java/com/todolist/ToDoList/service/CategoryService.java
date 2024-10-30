@@ -2,6 +2,9 @@ package com.todolist.ToDoList.service;
 
 import com.todolist.ToDoList.model.Category;
 import com.todolist.ToDoList.repository.CategoryRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +19,7 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Transactional
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
