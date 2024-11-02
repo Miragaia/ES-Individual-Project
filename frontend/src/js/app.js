@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const categoryFilter = document.getElementById("category"); // The category filter dropdown
 
+    const statusFilter = document.getElementById("status");
+
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
     const CATEGORY_URL = "http://localhost:8080/api/categories";
@@ -260,6 +262,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    // Event listener for the status filter dropdown
+    statusFilter.addEventListener("change", function () {
+        const selectedStatus = statusFilter.value;
+        fetchTasksByStatus(selectedStatus);
+    }); 
+
     // Close the Assign Category modal
     closeAssignCategoryModalBtn.addEventListener("click", function () {
         assignCategoryModal.style.display = "none";
@@ -327,7 +335,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetchCategoriesForDropdown(); // Fetch categories for the filter dropdown
                 fetchUserCategories();
                 fetchTasks(); // Re-fetch tasks after update
-                //here
+                fetchTasksByStatus("ALL");
+                document.getElementById("status").value = "ALL";
             })
             .catch(error => console.error('Error updating task:', error));
         };
@@ -357,6 +366,9 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             console.log("Task completed successfully:", data);
             fetchTasks(); // Re-fetch tasks after marking as complete
+            fetchCategoriesForDropdown(); // Re-fetch categories for the filter dropdown
+            fetchTasksByStatus("ALL");
+            document.getElementById("status").value = "ALL";
         })
         .catch(error => console.error('Error completing task:', error));
     }
@@ -515,6 +527,8 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchTasks(); // Re-fetch tasks after adding
             fetchUserCategories(); // Re-fetch categories after adding
             fetchCategoriesForDropdown(); // Re-fetch categories for the filter dropdown
+            fetchTasksByStatus("ALL");
+            document.getElementById("status").value = "ALL";
             closeCatModal();  // Close the modal
         })
         .catch(error => console.error('Error adding Category:', error));
@@ -629,9 +643,30 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error fetching tasks by category:', error));
     }
 
+    // Fetch and display tasks based on the selected status
+    function fetchTasksByStatus(status) {
+        let url = `${API_URL}/filterByStatus?status=${status}`;
+        if (status === "ALL") {
+            url = API_URL; // Get all tasks if "ALL" is selected
+        }
+
+        fetch(url, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(data => {
+            renderTasks(data); // Render tasks based on the fetched data
+        })
+        .catch(error => console.error('Error fetching tasks:', error));
+    }
+
     fetchCategoriesForDropdown(); // Fetch categories for the filter dropdown
 
     fetchUserCategories(); // Fetch user categories when the page loads
+
+    fetchTasksByStatus("ALL");
+    document.getElementById("status").value = "ALL";
 
     // Fetch and render tasks when the page loads
     fetchTasks();

@@ -119,8 +119,13 @@ public class TaskController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Task> tasks = taskService.getTasksByStatusAndUser(status, user);
-        return ResponseEntity.ok(tasks);
+        try {
+            Status statusOpt = Status.valueOf(status);  // Convert string to Status enum
+            List<Task> tasks = taskService.getTasksByStatusAndUser(statusOpt, user);
+            return ResponseEntity.ok(tasks);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();  // Return 400 if invalid status
+        }
     }
 
     // Delete Task - done
