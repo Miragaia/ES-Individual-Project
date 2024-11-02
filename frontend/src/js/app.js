@@ -324,6 +324,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 console.log("Task updated successfully:", data);
                 closeTaskModalEdit();
+                fetchCategoriesForDropdown(); // Fetch categories for the filter dropdown
+                fetchUserCategories();
                 fetchTasks(); // Re-fetch tasks after update
             })
             .catch(error => console.error('Error updating task:', error));
@@ -511,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log("Category added successfully:", data);
             fetchTasks(); // Re-fetch tasks after adding
             fetchUserCategories(); // Re-fetch categories after adding
+            fetchCategoriesForDropdown(); // Re-fetch categories for the filter dropdown
             closeCatModal();  // Close the modal
         })
         .catch(error => console.error('Error adding Category:', error));
