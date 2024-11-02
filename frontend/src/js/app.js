@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetchCategoriesForDropdown(); // Fetch categories for the filter dropdown
                 fetchUserCategories();
                 fetchTasks(); // Re-fetch tasks after update
+                //here
             })
             .catch(error => console.error('Error updating task:', error));
         };

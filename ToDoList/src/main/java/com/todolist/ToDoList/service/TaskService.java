@@ -53,4 +53,8 @@ public class TaskService {
     public List<Task> getTasksByCategoryAndUser(UUID categoryId, User user) {
         return taskRepository.findByCategoryIdAndUser(categoryId, user);
     }
+
+    public List<Task> getTasksByStatusAndUser(String status, User user) {
+        return taskRepository.findByStatusAndUser(status, user);
+    }
 }

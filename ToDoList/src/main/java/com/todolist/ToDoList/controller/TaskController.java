@@ -99,6 +99,7 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    //done
     @GetMapping("/filterCategory")
     public ResponseEntity<List<Task>> getTasksByCategory(@RequestParam UUID categoryId) {
         User user = authHandler.getAuthenticatedUser();
@@ -107,6 +108,18 @@ public class TaskController {
         }
 
         List<Task> tasks = taskService.getTasksByCategoryAndUser(categoryId, user);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/filterByStatus")
+    public ResponseEntity<List<Task>> getTasksByStatus(@RequestParam String status) {
+        User user = authHandler.getAuthenticatedUser();
+        
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        List<Task> tasks = taskService.getTasksByStatusAndUser(status, user);
         return ResponseEntity.ok(tasks);
     }
 
