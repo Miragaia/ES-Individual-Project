@@ -60,7 +60,7 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @PutMapping("/{taskId}/category/{categoryId}")
+    @PutMapping("/{taskId}/category/{categoryId}")  //done
     public ResponseEntity<Task> assignCategoryToTask(
             @PathVariable UUID taskId,
             @PathVariable UUID categoryId) {
@@ -97,7 +97,6 @@ public class CategoryController {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(category);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@RequestParam UUID id) {

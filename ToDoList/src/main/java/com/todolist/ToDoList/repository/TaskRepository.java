@@ -1,6 +1,8 @@
 package com.todolist.ToDoList.repository;
 
 import com.todolist.ToDoList.model.Task;
+import com.todolist.ToDoList.model.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> findByUserIdAndCategoryIdAndStatus(UUID userId, UUID categoryId, String status);
     List<Task> findByUserIdAndCategoryIdAndPriority(UUID userId, UUID categoryId, String priority);
     void deleteTaskById(UUID taskId);
+    List<Task> findByCategoryIdAndUser(UUID categoryId, User user);
     
 }
 

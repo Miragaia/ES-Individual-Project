@@ -99,22 +99,18 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    // Get Tasks by Category - TO DO
-    @GetMapping("/category/{categoryId}")
+    @GetMapping("/filterCategory")
     public ResponseEntity<List<Task>> getTasksByCategory(@RequestParam UUID categoryId) {
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
-        
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        // Get tasks by category for the authenticated user
-        List<Task> tasks = taskService.getTasksByUserAndCategory(user.getId(), categoryId);
+        List<Task> tasks = taskService.getTasksByCategoryAndUser(categoryId, user);
         return ResponseEntity.ok(tasks);
     }
 
-    // Delete Task - - to do
+    // Delete Task - done
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
 

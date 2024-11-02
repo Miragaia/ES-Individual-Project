@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let selectedTaskId = null; // Store task ID for assigning category
     let categoriesAvailable = false;
 
+    const categoryFilter = document.getElementById("category"); // The category filter dropdown
+
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
     const CATEGORY_URL = "http://localhost:8080/api/categories";
@@ -42,8 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Headers:', headers);
 
     // Fetch tasks from the server
-    function fetchTasks() {
-        fetch(API_URL, {
+    function fetchTasks(categoryId = null) {
+        let url = categoryId ? `${API_URL}/filterCategory?categoryId=${categoryId}` : API_URL;
+        
+        fetch(url, {
             method: 'GET',
             headers: headers
         })
@@ -53,6 +57,42 @@ document.addEventListener('DOMContentLoaded', function () {
             renderTasks(tasksData);
         })
         .catch(error => console.error('Error fetching tasks:', error));
+    }
+
+    // Event listener for category filter dropdown
+    categoryFilter.addEventListener('change', function () {
+        const selectedCategoryId = categoryFilter.value;
+        if (selectedCategoryId === "all") {
+            fetchTasks(); // Fetch all tasks if "All" is selected
+        } else {
+            fetchTasks(selectedCategoryId); // Fetch tasks filtered by category
+        }
+    });
+
+    // Fetch categories and populate the filter dropdown
+    function fetchCategoriesForDropdown() {
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            categoryFilter.innerHTML = `<option value="all">All</option>`;
+            if (categories.length > 0) {
+                categories.forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category.id;
+                    option.text = category.title;
+                    categoryFilter.appendChild(option);
+                });
+            } else {
+                const noCategoryOption = document.createElement("option");
+                noCategoryOption.disabled = true;
+                noCategoryOption.textContent = "No categories available";
+                categoryFilter.appendChild(noCategoryOption);
+            }
+        })
+        .catch(error => console.error('Error fetching categories:', error));
     }
 
     // Open the Assign Category modal and load categories
@@ -567,6 +607,25 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("catDescription").value = '';
 
     }
+
+
+    // Function to filter tasks by category
+    function filterTasksByCategory(categoryId) {
+        fetch(`${API_URL}/filterCategory?categoryId=${categoryId}`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            return response.json();
+        })
+        .then(tasks => {
+            renderTasks(tasks); // Use existing render function to display filtered tasks
+        })
+        .catch(error => console.error('Error fetching tasks by category:', error));
+    }
+
+    fetchCategoriesForDropdown(); // Fetch categories for the filter dropdown
 
     fetchUserCategories(); // Fetch user categories when the page loads
 

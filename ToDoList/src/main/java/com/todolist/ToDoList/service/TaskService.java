@@ -1,6 +1,7 @@
 package com.todolist.ToDoList.service;
 
 import com.todolist.ToDoList.model.Task;
+import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +35,6 @@ public class TaskService {
         return taskRepository.findByUserId(userId);
     }
 
-    public List<Task> getTasksByUserAndCategory(UUID userId, UUID categoryId) {
-        return taskRepository.findByUserIdAndCategoryId(userId, categoryId);
-    }
-
     @Transactional
     public void deleteTask(UUID taskId) {
         taskRepository.deleteTaskById(taskId);
@@ -51,5 +48,9 @@ public class TaskService {
         existingTask.setStatus(task.getStatus());
         existingTask.setPriority(task.getPriority());
         return taskRepository.save(existingTask);
+    }
+
+    public List<Task> getTasksByCategoryAndUser(UUID categoryId, User user) {
+        return taskRepository.findByCategoryIdAndUser(categoryId, user);
     }
 }
