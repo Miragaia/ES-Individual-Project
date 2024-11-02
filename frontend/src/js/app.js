@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Open the Assign Category modal and load categories
     window.openAssignCategoryModal = function (taskId) {
         selectedTaskId = taskId; // Save task ID for assigning category
-        fetchUserCategories(); // Populate the dropdown with categories
+        fetchUserCategoriesDropdown(); // Populate the dropdown with categories
         assignCategoryModal.style.display = "block";
     };
 
@@ -76,6 +76,39 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     
+    function fetchUserCategoriesDropdown() {
+        fetch(CATEGORY_URL + "/user", {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            // Clear existing options
+            categorySelect.innerHTML = "";
+            
+            // Check if there are any categories
+            if (categories.length === 0) {
+                // Disable all Add Category buttons
+                categoriesAvailable = false; // No categories
+                toggleAddCategoryButtons(false);
+                console.log("No categories found for the user.");
+            } else {
+                // Enable all Add Category buttons
+                categoriesAvailable = true; // Categories exist
+                toggleAddCategoryButtons(true);
+    
+                // Populate dropdown with categories
+                categories.forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category.id;
+                    option.textContent = category.title;
+                    categorySelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error("Error fetching user categories:", error));
+    }
+
     function fetchUserCategories() {
         fetch(CATEGORY_URL + "/user", {
             method: 'GET',
@@ -89,19 +122,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Check if there are any categories
             if (categories.length === 0) {
                 // Disable all Add Category buttons
+                categoriesAvailable = false; // No categories
                 toggleAddCategoryButtons(false);
                 console.log("No categories found for the user.");
             } else {
                 // Enable all Add Category buttons
+                categoriesAvailable = true; // Categories exist
                 toggleAddCategoryButtons(true);
-    
-                // Populate dropdown with categories
-                categories.forEach(category => {
-                    const option = document.createElement("option");
-                    option.value = category.id;
-                    option.textContent = category.title;
-                    categorySelect.appendChild(option);
-                });
             }
         })
         .catch(error => console.error("Error fetching user categories:", error));
@@ -507,6 +534,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("catDescription").value = '';
 
     }
+
+    fetchUserCategories(); // Fetch user categories when the page loads
 
     // Fetch and render tasks when the page loads
     fetchTasks();
