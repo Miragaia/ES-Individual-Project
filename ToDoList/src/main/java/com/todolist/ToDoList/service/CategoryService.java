@@ -2,6 +2,7 @@ package com.todolist.ToDoList.service;
 
 import com.todolist.ToDoList.model.Category;
 import com.todolist.ToDoList.repository.CategoryRepository;
+import com.todolist.ToDoList.model.User;
 
 import jakarta.transaction.Transactional;
 
@@ -39,5 +40,9 @@ public class CategoryService {
 
     public void deleteCategory(UUID categoryId) {
         categoryRepository.deleteById(categoryId);
+    }
+
+    public List<Category> getCategoriesByUser(User user) {
+        return categoryRepository.findByUser(user);
     }
 }

@@ -218,6 +218,33 @@ textarea {
     font-size: 14px;
 }
 
+.view-categories-btn {
+    padding: 10px 15px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.view-categories-btn:hover {
+    background-color: #138496;
+}
+
+#viewCategoriesModal ul {
+    list-style: none;
+    padding: 0;
+}
+
+#viewCategoriesModal ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+
 
 /* Slide Down Animation for Modal */
 @keyframes slideDown {

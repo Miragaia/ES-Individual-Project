@@ -1,6 +1,8 @@
 package com.todolist.ToDoList.repository;
 
 import com.todolist.ToDoList.model.Category;
+import com.todolist.ToDoList.model.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,8 +12,7 @@ import java.util.UUID;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByUserId(UUID userId);
-    Category findByUserIdAndId(UUID userId, UUID categoryId);
-    Category findByUserIdAndTitle(UUID userId, String title);
     void deleteById(UUID categoryId);
+    List<Category> findByUser(User user);
 }
 

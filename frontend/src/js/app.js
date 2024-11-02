@@ -13,6 +13,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const categoryModal = document.getElementById("catModal");  // For adding or creating categories
     const addCatBtn = document.getElementById("addCatBtn");
 
+    const viewCategoriesBtn = document.getElementById("viewCategoriesBtn");
+    const viewCategoriesModal = document.getElementById("viewCategoriesModal");
+    const closeViewCategoriesModalBtn = document.getElementById("closeViewCategoriesModalBtn");
+    const categoriesList = document.getElementById("categoriesList");
+
+    const assignCategoryModal = document.getElementById("assignCategoryModal");
+    const closeAssignCategoryModalBtn = document.getElementById("closeAssignCategoryModalBtn");
+    const categorySelect = document.getElementById("categorySelect");
+    const assignCategoryBtn = document.getElementById("assignCategoryBtn");
+    let selectedTaskId = null; // Store task ID for assigning category
+
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
     const CATEGORY_URL = "http://localhost:8080/api/categories";
@@ -43,6 +54,87 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error fetching tasks:', error));
     }
 
+    // Function to fetch categories and populate the dropdown
+    function fetchCategoriesForDropdown() {
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            categorySelect.innerHTML = ''; // Clear the current options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.title;
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
+    // // Render tasks in the table
+    // function renderTasks(tasks) {
+    //     taskTableBody.innerHTML = ''; // Clear the current table rows
+
+    //     tasks.forEach((task) => {
+    //         const row = document.createElement('tr');
+
+    //         // Check if the category exists
+    //         const category = task.category ? task.category.title : `<button onclick="openAssignCategoryModal('${task.id}')">Add Category</button>`;
+
+    //         row.innerHTML = `
+    //             <td>${task.title}</td>
+    //             <td>${task.description}</td>
+    //             <td>${task.priority}</td>
+    //             <td>${task.deadline.toLocaleString()}</td>
+    //             <td>${task.status}</td>
+    //             <td>${category}</td>
+    //             <td>
+    //                 <button class="action-btn edit-btn" onclick="openTaskModalEdit('${task.id}')">
+    //                     <i class="fa fa-pencil"></i>
+    //                 </button>
+    //                 <button class="action-btn complete-btn" onclick="completeTask('${task.id}')">
+    //                     <i class="fa fa-check"></i>
+    //                 </button>
+    //                 <button class="action-btn delete-btn" onclick="deleteTask('${task.id}')">
+    //                     <i class="fa fa-times"></i>
+    //                 </button>
+    //             </td>
+    //         `;
+
+    //         taskTableBody.appendChild(row);
+    //     });
+    // }
+
+    // Open the Assign Category modal and load categories
+    window.openAssignCategoryModal = function (taskId) {
+        selectedTaskId = taskId; // Save task ID for assigning category
+        fetchCategoriesForDropdown(); // Populate the dropdown with categories
+        assignCategoryModal.style.display = "block";
+
+        fetchUserCategories();
+    };
+
+    // Function to fetch categories and populate the dropdown
+    function fetchCategoriesForDropdown() {
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            categorySelect.innerHTML = ''; // Clear the current options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.title;
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
     // Render tasks in the table
     function renderTasks(tasks) {
         taskTableBody.innerHTML = ''; // Clear the current table rows
@@ -51,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const row = document.createElement('tr');
 
             // Check if the category exists
-            const category = task.category ? task.category.title : `<button onclick="openCategoryModal('${task.id}')">Add Category</button>`;
+            const category = task.category ? task.category.title : `<button onclick="openAssignCategoryModal('${task.id}')">Add Category</button>`;
 
             row.innerHTML = `
                 <td>${task.title}</td>
@@ -76,6 +168,67 @@ document.addEventListener('DOMContentLoaded', function () {
             taskTableBody.appendChild(row);
         });
     }
+       
+
+    // Event listener for the "Assign Category" button in the modal
+    assignCategoryBtn.addEventListener("click", function () {
+        const categoryId = categorySelect.value;
+        if (!categoryId || !selectedTaskId) return;
+
+        fetch(`${CATEGORY_URL}/${selectedTaskId}/category/${categoryId}`, {
+            method: 'PUT', // Use PUT as specified
+            headers: headers
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            console.log(`Category ${categoryId} assigned to task ${selectedTaskId}`);
+            assignCategoryModal.style.display = "none"; // Close the modal
+            fetchTasks(); // Refresh tasks to show updated category
+        })
+        .catch(error => console.error("Error assigning category:", error));
+    });
+    
+    
+    // Assign the selected category to the task
+    function fetchUserCategories() {
+        fetch(CATEGORY_URL + "/user", {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            // Clear existing options
+            categorySelect.innerHTML = "";
+            
+            // Populate dropdown with categories
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.id;
+                option.textContent = category.title;
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching user categories:", error));
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === assignCategoryModal) {
+            assignCategoryModal.style.display = "none";
+        }
+    };
+
+    // Open the Assign Category modal and load categories
+    window.openAssignCategoryModal = function (taskId) {
+        selectedTaskId = taskId; // Save task ID for assigning category
+        fetchCategoriesForDropdown(); // Populate the dropdown with categories
+        assignCategoryModal.style.display = "block";
+    };
+
+    // Close the Assign Category modal
+    closeAssignCategoryModalBtn.addEventListener("click", function () {
+        assignCategoryModal.style.display = "none";
+    });
 
    // Open the task modal for editing and populate it
     window.openTaskModalEdit = function (taskId) {
@@ -162,6 +315,48 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error completing task:', error));
     }
+
+
+    // Function to fetch categories from the server
+    function fetchCategories() {
+        fetch(`${CATEGORY_URL}/user`, {   // Fetch categories for the logged-in user
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => renderCategories(categories))
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
+    // Render categories in the list
+    function renderCategories(categories) {
+        categoriesList.innerHTML = ''; // Clear current list
+        categories.forEach(category => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${category.title}: ${category.description}`;
+            categoriesList.appendChild(listItem);
+        });
+    }
+
+    // Open the modal for viewing categories
+    viewCategoriesBtn.addEventListener("click", function () {
+        fetchCategories();  // Fetch and render categories
+        viewCategoriesModal.style.display = "block";
+    });
+
+    // Close the modal for viewing categories
+    closeViewCategoriesModalBtn.addEventListener("click", function () {
+        viewCategoriesModal.style.display = "none";
+    });
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === viewCategoriesModal) {
+            viewCategoriesModal.style.display = "none";
+        }
+    };
+
+
 
     // Add a new task
     addTaskBtn.addEventListener("click", function () {
@@ -337,6 +532,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (event.target === categoryModal) {
             closeCatModal();
+        }
+        if (event.target === viewCategoriesModal) {
+            viewCategoriesModal.style.display = "none";
+        }
+        if (event.target === assignCategoryModal) {
+            assignCategoryModal.style.display = "none";
         }
     };
 
