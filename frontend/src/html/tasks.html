@@ -56,6 +56,7 @@
             <label for="taskDeadline">Deadline:</label>
             <input type="date" id="taskDeadline" placeholder="Select Deadline">
 
+            <label for="taskPriority">Priority:</label>
             <select id="taskPriority">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -74,15 +75,24 @@
             <input type="text" id="taskTitleEdit" placeholder="Task Title">
             <textarea id="taskDescriptionEdit" placeholder="Task Description"></textarea>
             <input type="date" id="taskDeadlineEdit" placeholder="Select Deadline">
+
+            <label for="taskDeadline">Deadline:</label>
             <select id="taskPriorityEdit">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
             </select>
+
+            <label for="taskPriority">Priority:</label>
             <select id="taskStatus">
                 <option value="TO_DO">To Do</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
+            </select>
+
+            <label for="taskCategoryEdit">Category:</label>
+            <select id="taskCategoryEdit">
+                <!-- Categories will be populated here -->
             </select>
             <button id="editTaskBtn">Save Changes</button>
         </div>

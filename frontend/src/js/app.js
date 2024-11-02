@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         buttons.forEach(button => {
             button.disabled = !enable; // Disable the button if enable is false
             if (!enable) {
-                button.textContent = "Add Category (disabled)"; // Optional: Change button text
+                button.textContent = "Not Available"; // Optional: Change button text
             } else {
                 button.textContent = "Add Category"; // Reset button text if enabled
             }
@@ -105,6 +105,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     categorySelect.appendChild(option);
                 });
             }
+        })
+        .catch(error => console.error("Error fetching user categories:", error));
+    }
+
+    function fetchUserCategoriesEdit(selectedCategoryId) {
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            const categorySelect = document.getElementById("taskCategoryEdit");
+            categorySelect.innerHTML = ''; // Clear any previous options
+    
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.id;
+                option.textContent = category.title;
+                if (category.id === selectedCategoryId) option.selected = true;
+                categorySelect.appendChild(option);
+            });
         })
         .catch(error => console.error("Error fetching user categories:", error));
     }
@@ -179,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const categoryId = categorySelect.value;
         if (!categoryId || !selectedTaskId) return;
 
-        fetch(`${API_URL}/${selectedTaskId}/category/${categoryId}`, {
+        fetch(`${CATEGORY_URL}/${selectedTaskId}/category/${categoryId}`, {
             method: 'PUT', // Use PUT as specified
             headers: headers
         })
@@ -216,6 +237,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("taskPriorityEdit").value = task.priority;
         document.getElementById("taskStatus").value = task.status;
 
+        fetchUserCategoriesEdit(task.category ? task.category.id : null); // Pass the current category ID if it exists
+
+
         // Open the edit modal
         taskModalEdit.style.display = "block";
 
@@ -227,6 +251,10 @@ document.addEventListener('DOMContentLoaded', function () {
             task.deadline = document.getElementById("taskDeadlineEdit").value;  
             task.priority = document.getElementById("taskPriorityEdit").value;
             task.status = document.getElementById("taskStatus").value;
+
+            // Get the selected category ID
+            const selectedCategoryId = document.getElementById("taskCategoryEdit").value;
+            task.category = selectedCategoryId ? { id: selectedCategoryId } : null;
 
             // Today's date in mm-dd-yyyy format
             const now = new Date().toISOString().split("T")[0].split("-").join("-");
@@ -314,6 +342,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Open the modal for viewing categories
     viewCategoriesBtn.addEventListener("click", function () {
+        if (!categoriesAvailable) {
+            alert("No categories found. Please add a category first.");
+            return;
+        }
         fetchCategories();  // Fetch and render categories
         viewCategoriesModal.style.display = "block";
     });
@@ -438,6 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             console.log("Category added successfully:", data);
             fetchTasks(); // Re-fetch tasks after adding
+            fetchUserCategories(); // Re-fetch categories after adding
             closeCatModal();  // Close the modal
         })
         .catch(error => console.error('Error adding Category:', error));
