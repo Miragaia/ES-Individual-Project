@@ -1,5 +1,6 @@
 package com.todolist.ToDoList.repository;
 
+import com.todolist.ToDoList.model.Status;
 import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.model.User;
 
@@ -20,6 +21,8 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> findByUserIdAndCategoryIdAndPriority(UUID userId, UUID categoryId, String priority);
     void deleteTaskById(UUID taskId);
     List<Task> findByCategoryIdAndUser(UUID categoryId, User user);
+    List<Task> findByStatusAndUser(Status status, User user);
+    List<Task> findByStatusAndCategoryIdAndUser(Status status, UUID categoryId, User user);
     
 }
 

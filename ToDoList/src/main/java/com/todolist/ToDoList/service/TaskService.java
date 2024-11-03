@@ -3,6 +3,9 @@ package com.todolist.ToDoList.service;
 import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.repository.TaskRepository;
+
+import com.todolist.ToDoList.model.Status;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +55,13 @@ public class TaskService {
 
     public List<Task> getTasksByCategoryAndUser(UUID categoryId, User user) {
         return taskRepository.findByCategoryIdAndUser(categoryId, user);
+    }
+
+    public List<Task> getTasksByStatusAndUser(Status status, User user) {
+        return taskRepository.findByStatusAndUser(status, user);
+    }
+
+    public List<Task> getTasksByStatusAndCategoryAndUser(Status status, UUID categoryId, User user) {
+        return taskRepository.findByStatusAndCategoryIdAndUser(status, categoryId, user);
     }
 }

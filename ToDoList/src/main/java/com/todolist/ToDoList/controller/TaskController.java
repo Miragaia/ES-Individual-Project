@@ -99,6 +99,7 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    //done
     @GetMapping("/filterCategory")
     public ResponseEntity<List<Task>> getTasksByCategory(@RequestParam UUID categoryId) {
         User user = authHandler.getAuthenticatedUser();
@@ -109,6 +110,65 @@ public class TaskController {
         List<Task> tasks = taskService.getTasksByCategoryAndUser(categoryId, user);
         return ResponseEntity.ok(tasks);
     }
+
+    @GetMapping("/filterByStatus")
+    public ResponseEntity<List<Task>> getTasksByStatus(@RequestParam String status) {
+        User user = authHandler.getAuthenticatedUser();
+        
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            Status statusOpt = Status.valueOf(status);  // Convert string to Status enum
+            List<Task> tasks = taskService.getTasksByStatusAndUser(statusOpt, user);
+            return ResponseEntity.ok(tasks);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();  // Return 400 if invalid status
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Task>> getTasksByStatusAndCategory(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) UUID categoryId) {
+        
+        User user = authHandler.getAuthenticatedUser();
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        
+        List<Task> tasks;
+        
+        if (status != null && categoryId != null) {
+            // Filter by both status and category
+            Status statusEnum;
+            try {
+                statusEnum = Status.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+            tasks = taskService.getTasksByStatusAndCategoryAndUser(statusEnum, categoryId, user);
+        } else if (status != null) {
+            // Filter by status only
+            Status statusEnum;
+            try {
+                statusEnum = Status.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+            tasks = taskService.getTasksByStatusAndUser(statusEnum, user);
+        } else if (categoryId != null) {
+            // Filter by category only
+            tasks = taskService.getTasksByCategoryAndUser(categoryId, user);
+        } else {
+            // No filters, return all tasks
+            tasks = taskService.getTasksByUserId(user.getId());
+        }
+        
+        return ResponseEntity.ok(tasks);
+    }
+
 
     // Delete Task - done
     @DeleteMapping("/{id}")
