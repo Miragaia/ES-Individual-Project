@@ -128,6 +128,48 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<Task>> getTasksByStatusAndCategory(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) UUID categoryId) {
+        
+        User user = authHandler.getAuthenticatedUser();
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        
+        List<Task> tasks;
+        
+        if (status != null && categoryId != null) {
+            // Filter by both status and category
+            Status statusEnum;
+            try {
+                statusEnum = Status.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+            tasks = taskService.getTasksByStatusAndCategoryAndUser(statusEnum, categoryId, user);
+        } else if (status != null) {
+            // Filter by status only
+            Status statusEnum;
+            try {
+                statusEnum = Status.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+            tasks = taskService.getTasksByStatusAndUser(statusEnum, user);
+        } else if (categoryId != null) {
+            // Filter by category only
+            tasks = taskService.getTasksByCategoryAndUser(categoryId, user);
+        } else {
+            // No filters, return all tasks
+            tasks = taskService.getTasksByUserId(user.getId());
+        }
+        
+        return ResponseEntity.ok(tasks);
+    }
+
+
     // Delete Task - done
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {

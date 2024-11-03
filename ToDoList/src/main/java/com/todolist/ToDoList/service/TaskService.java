@@ -60,4 +60,8 @@ public class TaskService {
     public List<Task> getTasksByStatusAndUser(Status status, User user) {
         return taskRepository.findByStatusAndUser(status, user);
     }
+
+    public List<Task> getTasksByStatusAndCategoryAndUser(Status status, UUID categoryId, User user) {
+        return taskRepository.findByStatusAndCategoryIdAndUser(status, categoryId, user);
+    }
 }
