@@ -8,6 +8,7 @@ import com.todolist.ToDoList.model.Status;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,15 +54,21 @@ public class TaskService {
         return taskRepository.save(existingTask);
     }
 
-    public List<Task> getTasksByCategoryAndUser(UUID categoryId, User user) {
-        return taskRepository.findByCategoryIdAndUser(categoryId, user);
-    }
 
-    public List<Task> getTasksByStatusAndUser(Status status, User user) {
-        return taskRepository.findByStatusAndUser(status, user);
+    public List<Task> getTasksByStatusCategoryAndUser(Status status, UUID categoryId, User user, String sortBy) {
+        return taskRepository.findByStatusAndCategoryIdAndUser(status, categoryId, user, Sort.by(Sort.Direction.ASC, sortBy));
     }
-
-    public List<Task> getTasksByStatusAndCategoryAndUser(Status status, UUID categoryId, User user) {
-        return taskRepository.findByStatusAndCategoryIdAndUser(status, categoryId, user);
+    
+    public List<Task> getTasksByStatusAndUser(Status status, User user, String sortBy) {
+        return taskRepository.findByStatusAndUser(status, user, Sort.by(Sort.Direction.ASC, sortBy));
+    }
+    
+    public List<Task> getTasksByCategoryAndUser(UUID categoryId, User user, String sortBy) {
+        return taskRepository.findByCategoryIdAndUser(categoryId, user, Sort.by(Sort.Direction.ASC, sortBy));
+    }
+    
+    public List<Task> getTasksByUser(User user, String sortBy) {
+        return taskRepository.findByUser(user, Sort.by(Sort.Direction.ASC, sortBy));
     }
 }
+    
