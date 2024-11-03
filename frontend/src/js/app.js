@@ -291,6 +291,38 @@ document.addEventListener('DOMContentLoaded', function () {
         assignCategoryModal.style.display = "none";
     });
 
+    function populateCategoryDropdownForEdit(task) {
+        const categoryDropdown = document.getElementById("taskCategoryEdit");
+    
+        // Clear existing options
+        categoryDropdown.innerHTML = '';
+    
+        // Add the "None" option at the top
+        const noneOption = document.createElement("option");
+        noneOption.value = '';
+        noneOption.text = 'None';
+        categoryDropdown.appendChild(noneOption);
+    
+        // Fetch categories from the backend
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.id;
+                option.text = category.title;
+                categoryDropdown.appendChild(option);
+            });
+    
+            // If the task has a category, set it as the selected option; otherwise, select "None"
+            categoryDropdown.value = task.category ? task.category.id : '';
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
    // Open the task modal for editing and populate it
     window.openTaskModalEdit = function (taskId) {
         const task = tasksData.find(t => t.id === taskId); // Find the task by its ID
@@ -303,8 +335,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("taskPriorityEdit").value = task.priority;
         document.getElementById("taskStatus").value = task.status;
 
-        fetchUserCategoriesEdit(task.category ? task.category.id : null); // Pass the current category ID if it exists
+        // fetchUserCategoriesEdit(task.category ? task.category.id : null); // Pass the current category ID if it exists
 
+        populateCategoryDropdownForEdit(task);
 
         // Open the edit modal
         taskModalEdit.style.display = "block";
