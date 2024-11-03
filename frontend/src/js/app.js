@@ -169,27 +169,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error("Error fetching user categories:", error));
     }
 
-    function fetchUserCategoriesEdit(selectedCategoryId) {
-        fetch(`${CATEGORY_URL}/user`, {
-            method: 'GET',
-            headers: headers
-        })
-        .then(response => response.json())
-        .then(categories => {
-            const categorySelect = document.getElementById("taskCategoryEdit");
-            categorySelect.innerHTML = ''; // Clear any previous options
-    
-            categories.forEach(category => {
-                const option = document.createElement("option");
-                option.value = category.id;
-                option.textContent = category.title;
-                if (category.id === selectedCategoryId) option.selected = true;
-                categorySelect.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching user categories:", error));
-    }
-
     function fetchUserCategories() {
         fetch(CATEGORY_URL + "/user", {
             method: 'GET',
@@ -334,8 +313,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("taskDeadlineEdit").value = task.deadline.split('T')[0]; // Convert to yyyy-mm-dd format
         document.getElementById("taskPriorityEdit").value = task.priority;
         document.getElementById("taskStatus").value = task.status;
-
-        // fetchUserCategoriesEdit(task.category ? task.category.id : null); // Pass the current category ID if it exists
 
         populateCategoryDropdownForEdit(task);
 
