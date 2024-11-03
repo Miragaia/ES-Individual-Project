@@ -29,9 +29,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const statusFilter = document.getElementById("status");
 
+    const sortBySelect = document.getElementById("sortBy");
+
     // Add event listeners to filter by both status and category
-    statusFilter.addEventListener("change", fetchFilteredTasks);
-    categoryFilter.addEventListener("change", fetchFilteredTasks);
+    statusFilter.addEventListener("change", fetchFilteredAndSortedTasks);
+    categoryFilter.addEventListener("change", fetchFilteredAndSortedTasks);
+    sortBySelect.addEventListener("change", fetchFilteredAndSortedTasks);
 
     // Base URL for API requests
     const API_URL = "http://localhost:8080/api/tasks";
@@ -49,14 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('Headers:', headers);
 
-    function fetchFilteredTasks() {
+    function fetchFilteredAndSortedTasks() {
         const status = statusFilter.value !== "ALL" ? statusFilter.value : null;
         const categoryId = categoryFilter.value !== "all" ? categoryFilter.value : null;
-        
+        const sortBy = sortBySelect.value;
+
         // Construct URL with query parameters
-        let url = `${API_URL}/filter?`;
-        if (status) url += `status=${status}&`;
-        if (categoryId) url += `categoryId=${categoryId}`;
+        let url = `${API_URL}/filter?sortBy=${sortBy}`;
+        if (status) url += `&status=${status}`;
+        if (categoryId) url += `&categoryId=${categoryId}`;
         
         fetch(url, {
             method: 'GET',
@@ -64,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
-            renderTasks(data); // Render filtered tasks
+            renderTasks(data); // Render tasks based on the fetched data
         })
         .catch(error => console.error('Error fetching tasks:', error));
     }
@@ -84,16 +88,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error fetching tasks:', error));
     }
-
-    // // Event listener for category filter dropdown
-    // categoryFilter.addEventListener('change', function () {
-    //     const selectedCategoryId = categoryFilter.value;
-    //     if (selectedCategoryId === "all") {
-    //         fetchTasks(); // Fetch all tasks if "All" is selected
-    //     } else {
-    //         fetchTasks(selectedCategoryId); // Fetch tasks filtered by category
-    //     }
-    // });
 
     // Fetch categories and populate the filter dropdown
     function fetchCategoriesForDropdown() {
@@ -691,6 +685,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchTasksByStatus("ALL");
     document.getElementById("status").value = "ALL";
+
+    fetchFilteredAndSortedTasks();
 
     // Fetch and render tasks when the page loads
     fetchTasks();
