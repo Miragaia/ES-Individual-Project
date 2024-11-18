@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const messageDiv = document.getElementById('message');
 
-    // Handle registration
+    // Register
     if (registerForm) {
         registerForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Handle login
+    // Login
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -64,11 +64,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('token', data.token);  // Store JWT token
+                    localStorage.setItem('token', data.token);
                     messageDiv.textContent = 'Login successful!';
                     messageDiv.style.color = 'green';
                     
-                    // Redirect to task page or other protected page
+                    
                     window.location.href = 'tasks.html';
                 } else {
                     messageDiv.textContent = 'Invalid email or password!';
