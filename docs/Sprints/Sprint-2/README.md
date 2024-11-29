@@ -1,7 +1,7 @@
 # Sprint Review & Retrospective
 
 This document provides an overview of the work completed, challenges faced, and improvements identified in Sprint 2.
-
+[October 14th - October 21st]
 ---
 
 ## Sprint 2: User Authentication

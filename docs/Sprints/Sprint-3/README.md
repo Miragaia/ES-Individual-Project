@@ -1,7 +1,7 @@
 # Sprint Review & Retrospective
 
 This document provides an overview of the work completed, challenges faced, and improvements identified in Sprint 3.
-
+[October 21st - October 28th]
 ---
 
 ## Sprint 3: Task Management Features

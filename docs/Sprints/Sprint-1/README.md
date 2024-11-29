@@ -1,7 +1,7 @@
 # Sprint Review & Retrospective
 
 This document provides an overview of the work completed, challenges faced, and improvements identified in Sprint 1.
-
+[October 7th - October 14th]
 ---
 
 ## Sprint 1: Project Setup and Configuration
