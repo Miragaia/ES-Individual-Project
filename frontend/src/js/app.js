@@ -14,9 +14,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const openCategoryModalBtn = document.getElementById("openCategoryModalBtn");
     const closeTaskModalBtnEdit = document.getElementById("closeTaskModalBtnEdit");
 
+    //Category Creation Modal
     const closeCatModalBtn = document.getElementById("closeCatModalBtn");
 
-    const categoryModal = document.getElementById("catModal");  // For adding or creating categories
+    const categoryModal = document.getElementById("catModal");
     const addCatBtn = document.getElementById("addCatBtn");
 
     const viewCategoriesBtn = document.getElementById("viewCategoriesBtn");
@@ -29,12 +30,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const assignCategoryModal = document.getElementById("assignCategoryModal");
     const closeAssignCategoryModalBtn = document.getElementById("closeAssignCategoryModalBtn");
     const categorySelect = document.getElementById("categorySelect");
-    let categoriesAvailable = false;
-
-
     const assignCategoryBtn = document.getElementById("assignCategoryBtn");
-
-    let selectedTaskId = null; // Store task ID for assigning category
+    let categoriesAvailable = false;
+    let selectedTaskId = null;
 
 
     const categoryFilter = document.getElementById("category"); // The category filter dropdown 
@@ -163,14 +161,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error("Error fetching user categories:", error));
     }
 
-    // Render tasks in the table
+    // Render tasks in the table (needs to stay at app.js)
     function renderTasks(tasks) {
-        taskTableBody.innerHTML = ''; // Clear the current table rows
+        taskTableBody.innerHTML = '';
 
         tasks.forEach((task) => {
             const row = document.createElement('tr');
 
-            // Check if the category exists
             const category = task.category 
                 ? task.category.title 
                 : `<button id="addCategoryButton-${task.id}" class="add-category-btn" onclick="openAssignCategoryModal('${task.id}')">Add Category</button>`;
@@ -198,10 +195,8 @@ document.addEventListener('DOMContentLoaded', function () {
             taskTableBody.appendChild(row);
         });
 
-        // After rendering tasks, update button state based on category availability
         toggleAddCategoryButtons(categoriesAvailable);
     }
-        
 
     // Event listener for the "Assign Category" button in the modal
     assignCategoryBtn.addEventListener("click", function () {
@@ -209,35 +204,93 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!categoryId || !selectedTaskId) return;
 
         fetch(`${CATEGORY_URL}/${selectedTaskId}/category/${categoryId}`, {
-            method: 'PUT', // Use PUT as specified
+            method: 'PUT',
             headers: headers
         })
         .then(response => {
             if (!response.ok) throw new Error(`Error: ${response.statusText}`);
             console.log(`Category ${categoryId} assigned to task ${selectedTaskId}`);
-            assignCategoryModal.style.display = "none"; // Close the modal
-            fetchTasks(); // Refresh tasks to show updated category
+            assignCategoryModal.style.display = "none";
+            fetchTasks();
         })
         .catch(error => console.error("Error assigning category:", error));
     });
 
-    // Close modal when clicking outside of it
-    window.onclick = function(event) {
-        if (event.target === assignCategoryModal) {
-            assignCategoryModal.style.display = "none";
-        }
-    };
-
-    // // Event listener for the status filter dropdown
-    // statusFilter.addEventListener("change", function () {
-    //     const selectedStatus = statusFilter.value;
-    //     fetchTasksByStatus(selectedStatus);
-    // }); 
+    // Modal Closing
 
     // Close the Assign Category modal
     closeAssignCategoryModalBtn.addEventListener("click", function () {
         assignCategoryModal.style.display = "none";
     });
+
+    // Close the modal for viewing categories
+    closeViewCategoriesModalBtn.addEventListener("click", function () {
+        viewCategoriesModal.style.display = "none";
+    });
+
+    // Close modal for editing
+    closeTaskModalBtnEdit.addEventListener("click", function () {
+        closeTaskModalEdit();
+    });
+
+    closeCatModalBtn.addEventListener("click", function () {
+        closeCatModal();
+    });
+
+    // Close task modal edit function
+    function closeTaskModalEdit() {
+        taskModalEdit.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("taskTitleEdit").value = '';
+        document.getElementById("taskDescriptionEdit").value = '';
+        document.getElementById("taskDeadlineEdit").value = '';
+        document.getElementById("taskPriorityEdit").value = 'LOW';
+    }
+
+    // Close the modal
+    closeTaskModalBtn.addEventListener("click", function () {
+        closeTaskModal();
+    });
+
+    // Close task modal function
+    function closeTaskModal() {
+        taskModal.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("taskTitle").value = '';
+        document.getElementById("taskDescription").value = '';
+        document.getElementById("taskDeadline").value = '';
+        document.getElementById("taskPriority").value = 'LOW';
+    }
+
+    function closeCatModal() {
+        categoryModal.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("catTitle").value = '';
+        document.getElementById("catDescription").value = '';
+
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === taskModalEdit) {
+            closeTaskModalEdit();
+        }
+        if (event.target === taskModal) {
+            closeTaskModal();
+        }
+        if (event.target === categoryModal) {
+            closeCatModal();
+        }
+        if (event.target === viewCategoriesModal) {
+            viewCategoriesModal.style.display = "none";
+        }
+        if (event.target === assignCategoryModal) {
+            assignCategoryModal.style.display = "none";
+        }
+    };
 
     function populateCategoryDropdownForEdit(task) {
         const categoryDropdown = document.getElementById("taskCategoryEdit");
@@ -245,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // Clear existing options
         categoryDropdown.innerHTML = '';
     
-        // Add the "None" option at the top
         const noneOption = document.createElement("option");
         noneOption.value = '';
         noneOption.text = 'None';
@@ -265,7 +317,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 categoryDropdown.appendChild(option);
             });
     
-            // If the task has a category, set it as the selected option; otherwise, select "None"
             categoryDropdown.value = task.category ? task.category.id : '';
         })
         .catch(error => console.error('Error fetching categories:', error));
@@ -273,10 +324,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
    // Open the task modal for editing and populate it
     window.openTaskModalEdit = function (taskId) {
-        const task = tasksData.find(t => t.id === taskId); // Find the task by its ID
+        const task = tasksData.find(t => t.id === taskId);
         if (!task) return;
 
-        // Populate the modal with task details
         document.getElementById("taskTitleEdit").value = task.title;
         document.getElementById("taskDescriptionEdit").value = task.description;
         document.getElementById("taskDeadlineEdit").value = task.deadline.split('T')[0]; // Convert to yyyy-mm-dd format
@@ -285,26 +335,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         populateCategoryDropdownForEdit(task);
 
-        // Open the edit modal
         taskModalEdit.style.display = "block";
 
         // Modify the existing task when saving
         document.getElementById("editTaskBtn").onclick = () => {
-            // Populate task object with updated values from the modal
+
             task.title = document.getElementById("taskTitleEdit").value;
             task.description = document.getElementById("taskDescriptionEdit").value;
             task.deadline = document.getElementById("taskDeadlineEdit").value;  
             task.priority = document.getElementById("taskPriorityEdit").value;
             task.status = document.getElementById("taskStatus").value;
 
-            // Get the selected category ID
             const selectedCategoryId = document.getElementById("taskCategoryEdit").value;
             task.category = selectedCategoryId ? { id: selectedCategoryId } : null;
 
-            // Today's date in mm-dd-yyyy format
             const now = new Date().toISOString().split("T")[0].split("-").join("-");
 
-            // Ensure no fields are empty and deadline is a future date
             if (!task.title || !task.description || !task.deadline || !task.priority || !task.status) {
                 alert("All fields must be filled out.");
                 return;
@@ -314,7 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Send updated task to server
             fetch(`${API_URL}/${taskId}`, {
                 method: 'PUT',
                 headers: headers,
@@ -339,13 +384,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     // Function to complete a task
     window.completeTask = function(taskId) {
-        const task = tasksData.find(t => t.id === taskId); // Find the task by its ID
+        const task = tasksData.find(t => t.id === taskId);
         if (!task) return;
 
-        task.status = "COMPLETED"; // Update the task status
+        task.status = "COMPLETED";
 
         // Send status update to server
         fetch(`${API_URL}/${taskId}`, {
@@ -361,8 +405,8 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             console.log("Task completed successfully:", data);
-            fetchTasks(); // Re-fetch tasks after marking as complete
-            fetchUserCategoriesDropdown(); // Re-fetch categories for the filter dropdown
+            fetchTasks();
+            fetchUserCategoriesDropdown();
             fetchTasksByStatus("ALL");
             document.getElementById("status").value = "ALL";
         })
@@ -372,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to fetch categories from the server
     function fetchCategories() {
-        fetch(`${CATEGORY_URL}/user`, {   // Fetch categories for the logged-in user
+        fetch(`${CATEGORY_URL}/user`, {
             method: 'GET',
             headers: headers
         })
@@ -383,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Render categories in the list
     function renderCategories(categories) {
-        categoriesList.innerHTML = ''; // Clear current list
+        categoriesList.innerHTML = '';
         categories.forEach(category => {
             const listItem = document.createElement('li');
             listItem.textContent = `${category.title}: ${category.description}`;
@@ -397,23 +441,9 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("No categories found. Please add a category first.");
             return;
         }
-        fetchCategories();  // Fetch and render categories
+        fetchCategories();
         viewCategoriesModal.style.display = "block";
     });
-
-    // Close the modal for viewing categories
-    closeViewCategoriesModalBtn.addEventListener("click", function () {
-        viewCategoriesModal.style.display = "none";
-    });
-
-    // Close modal when clicking outside of it
-    window.onclick = function(event) {
-        if (event.target === viewCategoriesModal) {
-            viewCategoriesModal.style.display = "none";
-        }
-    };
-
-
 
     // Add a new task
     addTaskBtn.addEventListener("click", function () {
@@ -439,10 +469,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Today's date in mm-dd-yyyy format
         const now = new Date().toISOString().split("T")[0].split("-").join("-");
 
-        // Ensure no fields are empty and deadline is a future date
         if (!newTask.title || !newTask.description || !newTask.deadline || !newTask.priority) {
             alert("All fields must be filled out.");
             return;
@@ -456,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`  // Attach the token to the request
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(newTask)
         })
@@ -464,20 +492,16 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            // Check if the response has content before parsing
             return response.text().then(text => text ? JSON.parse(text) : {});
         })
         .then(data => {
             console.log("Task added successfully:", data);
-            fetchTasks(); // Re-fetch tasks after adding
-            closeTaskModal();  // Close the modal
+            fetchTasks();
+            closeTaskModal();
         })
         .catch(error => console.error('Error adding task:', error));
     });
 
-
-
-    // Add a new Category
     addCatBtn.addEventListener("click", function () {
         const title = document.getElementById("catTitle").value;
         const description = document.getElementById("catDescription").value;
@@ -497,7 +521,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Ensure no fields are empty and deadline is a future date
         if (!newCat.title || !newCat.description) {
             alert("All fields must be filled out.");
             return;
@@ -507,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`  // Attach the token to the request
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(newCat)
         })
@@ -515,22 +538,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            // Check if the response has content before parsing
             return response.text().then(text => text ? JSON.parse(text) : {});
         })
         .then(data => {
             console.log("Category added successfully:", data);
-            fetchTasks(); // Re-fetch tasks after adding
-            fetchUserCategoriesDropdown(); // Re-fetch categories after adding
+            fetchTasks();
+            fetchUserCategoriesDropdown();
             fetchTasksByStatus("ALL");
             document.getElementById("status").value = "ALL";
-            closeCatModal();  // Close the modal
+            closeCatModal();
         })
         .catch(error => console.error('Error adding Category:', error));
     });
-
-
-
 
     // Delete a task
     window.deleteTask = function (taskId) {
@@ -540,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => {
             if (response.ok) {
-                fetchTasks(); // Re-fetch tasks after deletion
+                fetchTasks();
             } else {
                 console.error('Error deleting task:', response.statusText);
             }
@@ -553,73 +572,11 @@ document.addEventListener('DOMContentLoaded', function () {
         taskModal.style.display = "block";
     });
 
-    // Close modal for editing
-    closeTaskModalBtnEdit.addEventListener("click", function () {
-        closeTaskModalEdit();
-    });
-
     openCategoryModalBtn.addEventListener("click", function () {
         categoryModal.style.display = "block";
     });
 
-    closeCatModalBtn.addEventListener("click", function () {
-        closeCatModal();
-    });
-
-    // Close task modal edit function
-    function closeTaskModalEdit() {
-        taskModalEdit.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("taskTitleEdit").value = '';
-        document.getElementById("taskDescriptionEdit").value = '';
-        document.getElementById("taskDeadlineEdit").value = '';
-        document.getElementById("taskPriorityEdit").value = 'LOW';
-    }
-
-    // Close the modal
-    closeTaskModalBtn.addEventListener("click", function () {
-        closeTaskModal();
-    });
-
-    // Close modal when clicking outside of it
-    window.onclick = function(event) {
-        if (event.target === taskModalEdit) {
-            closeTaskModalEdit();
-        }
-        if (event.target === taskModal) {
-            closeTaskModal();
-        }
-        if (event.target === categoryModal) {
-            closeCatModal();
-        }
-        if (event.target === viewCategoriesModal) {
-            viewCategoriesModal.style.display = "none";
-        }
-        if (event.target === assignCategoryModal) {
-            assignCategoryModal.style.display = "none";
-        }
-    };
-
-    // Close task modal function
-    function closeTaskModal() {
-        taskModal.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("taskTitle").value = '';
-        document.getElementById("taskDescription").value = '';
-        document.getElementById("taskDeadline").value = '';
-        document.getElementById("taskPriority").value = 'LOW';
-    }
-
-    function closeCatModal() {
-        categoryModal.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("catTitle").value = '';
-        document.getElementById("catDescription").value = '';
-
-    }
+    
 
 
     // Function to filter tasks by category
