@@ -16,32 +16,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //Category Creation Modal
     const closeCatModalBtn = document.getElementById("closeCatModalBtn");
-
     const categoryModal = document.getElementById("catModal");
     const addCatBtn = document.getElementById("addCatBtn");
 
+    //View Existing Categories Modal
     const viewCategoriesBtn = document.getElementById("viewCategoriesBtn");
     const viewCategoriesModal = document.getElementById("viewCategoriesModal");
     const closeViewCategoriesModalBtn = document.getElementById("closeViewCategoriesModalBtn");
     const categoriesList = document.getElementById("categoriesList");
 
-
-    //stay at app.js
+    //Assign Category Modal
     const assignCategoryModal = document.getElementById("assignCategoryModal");
     const closeAssignCategoryModalBtn = document.getElementById("closeAssignCategoryModalBtn");
-    const categorySelect = document.getElementById("categorySelect");
     const assignCategoryBtn = document.getElementById("assignCategoryBtn");
+    const categorySelect = document.getElementById("categorySelect");
     let categoriesAvailable = false;
     let selectedTaskId = null;
 
-
-    const categoryFilter = document.getElementById("category"); // The category filter dropdown 
-
+    //Filters
+    const categoryFilter = document.getElementById("category");
     const statusFilter = document.getElementById("status");
-
     const sortBySelect = document.getElementById("sortBy");
 
-    // Add event listeners to filter by both status and category
+    // Filters event listeners (status and category)
     statusFilter.addEventListener("change", fetchFilteredAndSortedTasks);
     categoryFilter.addEventListener("change", fetchFilteredAndSortedTasks);
     sortBySelect.addEventListener("change", fetchFilteredAndSortedTasks);
@@ -60,28 +57,10 @@ document.addEventListener('DOMContentLoaded', function () {
         'Authorization': `Bearer ${token}`
     };
 
-    function fetchFilteredAndSortedTasks() {
-        const status = statusFilter.value !== "ALL" ? statusFilter.value : null;
-        const categoryId = categoryFilter.value !== "all" ? categoryFilter.value : null;
-        const sortBy = sortBySelect.value;
 
-        // Construct URL with query parameters
-        let url = `${API_URL}/filter?sortBy=${sortBy}`;
-        if (status) url += `&status=${status}`;
-        if (categoryId) url += `&categoryId=${categoryId}`;
-        
-        fetch(url, {
-            method: 'GET',
-            headers: headers
-        })
-        .then(response => response.json())
-        .then(data => {
-            renderTasks(data); // Render tasks based on the fetched data
-        })
-        .catch(error => console.error('Error fetching tasks:', error));
-    }
+    // Tasks Functions
 
-    // Fetch tasks (will be reused)
+    // Fetch tasks
     function fetchTasks(categoryId = null) {
         let url = categoryId ? `${API_URL}/filterCategory?categoryId=${categoryId}` : API_URL;
         
@@ -97,71 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error fetching tasks:', error));
     }
 
-    // Assign Category modal (in Tasks Table)   
-    window.openAssignCategoryModal = function (taskId) {
-        selectedTaskId = taskId;
-        fetchUserCategoriesDropdown();  //needs to stay at app.js
-        assignCategoryModal.style.display = "block";    //needs to stay at app.js
-    };
-
-    // Enable/Disable Add Category button (needs to stay at app.js)
-    function toggleAddCategoryButtons(enable) {
-        const buttons = document.querySelectorAll('.add-category-btn');
-        buttons.forEach(button => {
-            button.disabled = !enable;
-            if (!enable) {
-                button.textContent = "Not Available";
-            } else {
-                button.textContent = "Add Category";
-            }
-        });
-    }
-
-    // Fetch categories for the Assign Category dropdown (needs to stay at app.js)
-    function fetchUserCategoriesDropdown() {
-        fetch(CATEGORY_URL + "/user", {
-            method: 'GET',
-            headers: headers
-        })
-        .then(response => response.json())
-        .then(categories => {
-            
-            categorySelect.innerHTML = "";
-            categoryFilter.innerHTML = `<option value="all">All</option>`;
-            
-            
-            if (categories.length === 0) {
-                categoriesAvailable = false;
-                toggleAddCategoryButtons(false);
-
-                const noCategoryOption = document.createElement("option");
-                noCategoryOption.disabled = true;
-                noCategoryOption.textContent = "No categories available";
-                categoryFilter.appendChild(noCategoryOption);
-
-            } else {
-                categoriesAvailable = true;
-                toggleAddCategoryButtons(true);
-
-                categories.forEach(category => {
-                    const option = document.createElement("option");
-                    option.value = category.id;
-                    option.textContent = category.title;
-                    categorySelect.appendChild(option);
-                });
-
-                categories.forEach(category => {
-                    const option = document.createElement("option");
-                    option.value = category.id;
-                    option.text = category.title;
-                    categoryFilter.appendChild(option);
-                });
-            }
-        })
-        .catch(error => console.error("Error fetching user categories:", error));
-    }
-
-    // Render tasks in the table (needs to stay at app.js)
+    // Render tasks in the table
     function renderTasks(tasks) {
         taskTableBody.innerHTML = '';
 
@@ -198,131 +113,64 @@ document.addEventListener('DOMContentLoaded', function () {
         toggleAddCategoryButtons(categoriesAvailable);
     }
 
-    // Event listener for the "Assign Category" button in the modal
-    assignCategoryBtn.addEventListener("click", function () {
-        const categoryId = categorySelect.value;
-        if (!categoryId || !selectedTaskId) return;
+    // Create a new task
+    addTaskBtn.addEventListener("click", function () {
+        const title = document.getElementById("taskTitle").value;
+        const description = document.getElementById("taskDescription").value;
+        const deadline = document.getElementById("taskDeadline").value;
+        const priority = document.getElementById("taskPriority").value; 
+    
+        const newTask = {
+            title: title,
+            description: description,
+            deadline: deadline,
+            priority: priority
+        };
 
-        fetch(`${CATEGORY_URL}/${selectedTaskId}/category/${categoryId}`, {
-            method: 'PUT',
-            headers: headers
+        console.log("New task:", newTask);
+
+        // Get the JWT token
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("No JWT token found. User is not logged in.");
+            return;
+        }
+
+        const now = new Date().toISOString().split("T")[0].split("-").join("-");
+
+        if (!newTask.title || !newTask.description || !newTask.deadline || !newTask.priority) {
+            alert("All fields must be filled out.");
+            return;
+        }
+        if (newTask.deadline <= now) {
+            alert("The deadline must be a future date.");
+            return;
+        }
+    
+        fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(newTask)
         })
         .then(response => {
-            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-            console.log(`Category ${categoryId} assigned to task ${selectedTaskId}`);
-            assignCategoryModal.style.display = "none";
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text().then(text => text ? JSON.parse(text) : {});
+        })
+        .then(data => {
+            console.log("Task added successfully:", data);
             fetchTasks();
-        })
-        .catch(error => console.error("Error assigning category:", error));
-    });
-
-    // Modal Closing
-
-    // Close the Assign Category modal
-    closeAssignCategoryModalBtn.addEventListener("click", function () {
-        assignCategoryModal.style.display = "none";
-    });
-
-    // Close the modal for viewing categories
-    closeViewCategoriesModalBtn.addEventListener("click", function () {
-        viewCategoriesModal.style.display = "none";
-    });
-
-    // Close modal for editing
-    closeTaskModalBtnEdit.addEventListener("click", function () {
-        closeTaskModalEdit();
-    });
-
-    closeCatModalBtn.addEventListener("click", function () {
-        closeCatModal();
-    });
-
-    // Close task modal edit function
-    function closeTaskModalEdit() {
-        taskModalEdit.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("taskTitleEdit").value = '';
-        document.getElementById("taskDescriptionEdit").value = '';
-        document.getElementById("taskDeadlineEdit").value = '';
-        document.getElementById("taskPriorityEdit").value = 'LOW';
-    }
-
-    // Close the modal
-    closeTaskModalBtn.addEventListener("click", function () {
-        closeTaskModal();
-    });
-
-    // Close task modal function
-    function closeTaskModal() {
-        taskModal.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("taskTitle").value = '';
-        document.getElementById("taskDescription").value = '';
-        document.getElementById("taskDeadline").value = '';
-        document.getElementById("taskPriority").value = 'LOW';
-    }
-
-    function closeCatModal() {
-        categoryModal.style.display = "none";
-
-        // Clear form inputs
-        document.getElementById("catTitle").value = '';
-        document.getElementById("catDescription").value = '';
-
-    }
-
-    // Close modal when clicking outside of it
-    window.onclick = function(event) {
-        if (event.target === taskModalEdit) {
-            closeTaskModalEdit();
-        }
-        if (event.target === taskModal) {
             closeTaskModal();
-        }
-        if (event.target === categoryModal) {
-            closeCatModal();
-        }
-        if (event.target === viewCategoriesModal) {
-            viewCategoriesModal.style.display = "none";
-        }
-        if (event.target === assignCategoryModal) {
-            assignCategoryModal.style.display = "none";
-        }
-    };
-
-    function populateCategoryDropdownForEdit(task) {
-        const categoryDropdown = document.getElementById("taskCategoryEdit");
-    
-        // Clear existing options
-        categoryDropdown.innerHTML = '';
-    
-        const noneOption = document.createElement("option");
-        noneOption.value = '';
-        noneOption.text = 'None';
-        categoryDropdown.appendChild(noneOption);
-    
-        // Fetch categories from the backend
-        fetch(`${CATEGORY_URL}/user`, {
-            method: 'GET',
-            headers: headers
         })
-        .then(response => response.json())
-        .then(categories => {
-            categories.forEach(category => {
-                const option = document.createElement("option");
-                option.value = category.id;
-                option.text = category.title;
-                categoryDropdown.appendChild(option);
-            });
-    
-            categoryDropdown.value = task.category ? task.category.id : '';
-        })
-        .catch(error => console.error('Error fetching categories:', error));
-    }
+        .catch(error => console.error('Error adding task:', error));
+    });
 
-   // Open the task modal for editing and populate it
+    // Edit an existing Task (opens the task modal for editing)
     window.openTaskModalEdit = function (taskId) {
         const task = tasksData.find(t => t.id === taskId);
         if (!task) return;
@@ -384,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    // Function to complete a task
+    // Complete a task
     window.completeTask = function(taskId) {
         const task = tasksData.find(t => t.id === taskId);
         if (!task) return;
@@ -411,97 +259,70 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("status").value = "ALL";
         })
         .catch(error => console.error('Error completing task:', error));
-    }
+    }  
+
+    // Delete a task
+    window.deleteTask = function (taskId) {
+        fetch(`${API_URL}/${taskId}`, {
+            method: 'DELETE',
+            headers: headers
+        })
+        .then(response => {
+            if (response.ok) {
+                fetchTasks();
+            } else {
+                console.error('Error deleting task:', response.statusText);
+            }
+        })
+        .catch(error => console.error('Error deleting task:', error));
+    };
 
 
-    // Function to fetch categories from the server
-    function fetchCategories() {
-        fetch(`${CATEGORY_URL}/user`, {
+    // Filter Functions
+    
+    //Fetch and display tasks based on the filters
+    function fetchFilteredAndSortedTasks() {
+        const status = statusFilter.value !== "ALL" ? statusFilter.value : null;
+        const categoryId = categoryFilter.value !== "all" ? categoryFilter.value : null;
+        const sortBy = sortBySelect.value;
+
+        let url = `${API_URL}/filter?sortBy=${sortBy}`;
+        if (status) url += `&status=${status}`;
+        if (categoryId) url += `&categoryId=${categoryId}`;
+        
+        fetch(url, {
             method: 'GET',
             headers: headers
         })
         .then(response => response.json())
-        .then(categories => renderCategories(categories))
-        .catch(error => console.error('Error fetching categories:', error));
-    }
-
-    // Render categories in the list
-    function renderCategories(categories) {
-        categoriesList.innerHTML = '';
-        categories.forEach(category => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${category.title}: ${category.description}`;
-            categoriesList.appendChild(listItem);
-        });
-    }
-
-    // Open the modal for viewing categories
-    viewCategoriesBtn.addEventListener("click", function () {
-        if (!categoriesAvailable) {
-            alert("No categories found. Please add a category first.");
-            return;
-        }
-        fetchCategories();
-        viewCategoriesModal.style.display = "block";
-    });
-
-    // Add a new task
-    addTaskBtn.addEventListener("click", function () {
-        const title = document.getElementById("taskTitle").value;
-        const description = document.getElementById("taskDescription").value;
-        const deadline = document.getElementById("taskDeadline").value;
-        const priority = document.getElementById("taskPriority").value; 
-    
-        const newTask = {
-            title: title,
-            description: description,
-            deadline: deadline,
-            priority: priority
-        };
-
-        console.log("New task:", newTask);
-
-        // Get the JWT token
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            console.error("No JWT token found. User is not logged in.");
-            return;
-        }
-
-        const now = new Date().toISOString().split("T")[0].split("-").join("-");
-
-        if (!newTask.title || !newTask.description || !newTask.deadline || !newTask.priority) {
-            alert("All fields must be filled out.");
-            return;
-        }
-        if (newTask.deadline <= now) {
-            alert("The deadline must be a future date.");
-            return;
-        }
-    
-        fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(newTask)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text().then(text => text ? JSON.parse(text) : {});
-        })
         .then(data => {
-            console.log("Task added successfully:", data);
-            fetchTasks();
-            closeTaskModal();
+            renderTasks(data);
         })
-        .catch(error => console.error('Error adding task:', error));
-    });
+        .catch(error => console.error('Error fetching tasks:', error));
+    }
 
+    // Fetch and display tasks based on the selected status (used to reset the table for default filters)
+    function fetchTasksByStatus(status) {
+        let url = `${API_URL}/filterByStatus?status=${status}`;
+        if (status === "ALL") {
+            url = API_URL; // Get all tasks if "ALL" is selected
+        }
+
+        fetch(url, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(data => {
+            renderTasks(data); // Render tasks based on the fetched data
+        })
+        .catch(error => console.error('Error fetching tasks:', error));
+    }
+
+    
+    // Category Functions
+
+    // Create a new category
     addCatBtn.addEventListener("click", function () {
         const title = document.getElementById("catTitle").value;
         const description = document.getElementById("catDescription").value;
@@ -551,22 +372,137 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error adding Category:', error));
     });
 
-    // Delete a task
-    window.deleteTask = function (taskId) {
-        fetch(`${API_URL}/${taskId}`, {
-            method: 'DELETE',
+    // Update the category of a task
+    assignCategoryBtn.addEventListener("click", function () {
+        const categoryId = categorySelect.value;
+        if (!categoryId || !selectedTaskId) return;
+
+        fetch(`${CATEGORY_URL}/${selectedTaskId}/category/${categoryId}`, {
+            method: 'PUT',
             headers: headers
         })
         .then(response => {
-            if (response.ok) {
-                fetchTasks();
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            console.log(`Category ${categoryId} assigned to task ${selectedTaskId}`);
+            assignCategoryModal.style.display = "none";
+            fetchTasks();
+        })
+        .catch(error => console.error("Error assigning category:", error));
+    });
+
+    // Function to fetch categories from the DB
+    function fetchCategories() {
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => renderCategories(categories))
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
+    // Render categories in the list
+    function renderCategories(categories) {
+        categoriesList.innerHTML = '';
+        categories.forEach(category => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${category.title}: ${category.description}`;
+            categoriesList.appendChild(listItem);
+        });
+    }
+
+    // Enable/Disable Add Category button
+    function toggleAddCategoryButtons(enable) {
+        const buttons = document.querySelectorAll('.add-category-btn');
+        buttons.forEach(button => {
+            button.disabled = !enable;
+            if (!enable) {
+                button.textContent = "Not Available";
             } else {
-                console.error('Error deleting task:', response.statusText);
+                button.textContent = "Add Category";
+            }
+        });
+    }
+
+    // Fetch categories for the Assign Category dropdown
+    function fetchUserCategoriesDropdown() {
+        fetch(CATEGORY_URL + "/user", {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            
+            categorySelect.innerHTML = "";
+            categoryFilter.innerHTML = `<option value="all">All</option>`;
+            
+            
+            if (categories.length === 0) {
+                categoriesAvailable = false;
+                toggleAddCategoryButtons(false);
+
+                const noCategoryOption = document.createElement("option");
+                noCategoryOption.disabled = true;
+                noCategoryOption.textContent = "No categories available";
+                categoryFilter.appendChild(noCategoryOption);
+
+            } else {
+                categoriesAvailable = true;
+                toggleAddCategoryButtons(true);
+
+                categories.forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category.id;
+                    option.textContent = category.title;
+                    categorySelect.appendChild(option);
+                });
+
+                categories.forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category.id;
+                    option.text = category.title;
+                    categoryFilter.appendChild(option);
+                });
             }
         })
-        .catch(error => console.error('Error deleting task:', error));
-    };
+        .catch(error => console.error("Error fetching user categories:", error));
+    }
 
+    // Populate the category dropdown in the task edit modal
+    function populateCategoryDropdownForEdit(task) {
+        const categoryDropdown = document.getElementById("taskCategoryEdit");
+    
+        // Clear existing options
+        categoryDropdown.innerHTML = '';
+    
+        const noneOption = document.createElement("option");
+        noneOption.value = '';
+        noneOption.text = 'None';
+        categoryDropdown.appendChild(noneOption);
+    
+        // Fetch categories from the backend
+        fetch(`${CATEGORY_URL}/user`, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(categories => {
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.id;
+                option.text = category.title;
+                categoryDropdown.appendChild(option);
+            });
+    
+            categoryDropdown.value = task.category ? task.category.id : '';
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+    }
+
+
+    // Modal Functions
+
+    //Open Modal
     // Open the modal for task creation
     openTaskModalBtn.addEventListener("click", function () {
         taskModal.style.display = "block";
@@ -576,50 +512,107 @@ document.addEventListener('DOMContentLoaded', function () {
         categoryModal.style.display = "block";
     });
 
-    
+    // Open Assign Category modal (in Tasks Table)   
+    window.openAssignCategoryModal = function (taskId) {
+        selectedTaskId = taskId;
+        fetchUserCategoriesDropdown();
+        assignCategoryModal.style.display = "block";
+    };
 
-
-    // Function to filter tasks by category
-    function filterTasksByCategory(categoryId) {
-        fetch(`${API_URL}/filterCategory?categoryId=${categoryId}`, {
-            method: 'GET',
-            headers: headers
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-            return response.json();
-        })
-        .then(tasks => {
-            renderTasks(tasks); // Use existing render function to display filtered tasks
-        })
-        .catch(error => console.error('Error fetching tasks by category:', error));
-    }
-
-    // Fetch and display tasks based on the selected status
-    function fetchTasksByStatus(status) {
-        let url = `${API_URL}/filterByStatus?status=${status}`;
-        if (status === "ALL") {
-            url = API_URL; // Get all tasks if "ALL" is selected
+    // Open the modal for viewing categories
+    viewCategoriesBtn.addEventListener("click", function () {
+        if (!categoriesAvailable) {
+            alert("No categories found. Please add a category first.");
+            return;
         }
+        fetchCategories();
+        viewCategoriesModal.style.display = "block";
+    });
 
-        fetch(url, {
-            method: 'GET',
-            headers: headers
-        })
-        .then(response => response.json())
-        .then(data => {
-            renderTasks(data); // Render tasks based on the fetched data
-        })
-        .catch(error => console.error('Error fetching tasks:', error));
+    // Modal Closing
+    // Close the Assign Category modal
+    closeAssignCategoryModalBtn.addEventListener("click", function () {
+        assignCategoryModal.style.display = "none";
+    });
+
+    // Close the modal for viewing categories
+    closeViewCategoriesModalBtn.addEventListener("click", function () {
+        viewCategoriesModal.style.display = "none";
+    });
+
+    // Close modal for editing
+    closeTaskModalBtnEdit.addEventListener("click", function () {
+        closeTaskModalEdit();
+    });
+
+    closeCatModalBtn.addEventListener("click", function () {
+        closeCatModal();
+    });
+
+    // Close task modal edit function
+    function closeTaskModalEdit() {
+        taskModalEdit.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("taskTitleEdit").value = '';
+        document.getElementById("taskDescriptionEdit").value = '';
+        document.getElementById("taskDeadlineEdit").value = '';
+        document.getElementById("taskPriorityEdit").value = 'LOW';
     }
 
-    fetchUserCategoriesDropdown(); // Fetch user categories when the page loads
+    // Close the task modal
+    closeTaskModalBtn.addEventListener("click", function () {
+        closeTaskModal();
+    });
+
+    // Close task modal function
+    function closeTaskModal() {
+        taskModal.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("taskTitle").value = '';
+        document.getElementById("taskDescription").value = '';
+        document.getElementById("taskDeadline").value = '';
+        document.getElementById("taskPriority").value = 'LOW';
+    }
+
+    function closeCatModal() {
+        categoryModal.style.display = "none";
+
+        // Clear form inputs
+        document.getElementById("catTitle").value = '';
+        document.getElementById("catDescription").value = '';
+
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === taskModalEdit) {
+            closeTaskModalEdit();
+        }
+        if (event.target === taskModal) {
+            closeTaskModal();
+        }
+        if (event.target === categoryModal) {
+            closeCatModal();
+        }
+        if (event.target === viewCategoriesModal) {
+            viewCategoriesModal.style.display = "none";
+        }
+        if (event.target === assignCategoryModal) {
+            assignCategoryModal.style.display = "none";
+        }
+    };
+
+    
+    // Function calls (Initial)
+
+    fetchUserCategoriesDropdown();
 
     fetchTasksByStatus("ALL");
     document.getElementById("status").value = "ALL";
 
     fetchFilteredAndSortedTasks();
 
-    // Fetch and render tasks when the page loads
     fetchTasks();
 });
