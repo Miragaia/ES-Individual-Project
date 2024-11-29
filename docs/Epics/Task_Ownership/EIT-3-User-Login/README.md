@@ -18,7 +18,7 @@ The login page includes a form where users enter their:
   - Username or email
   - Password
 
-Upon successful login, the user’s credentials are verified. If the login is successful, they are directed to the app's main dashboard, where they can manage their tasks. If the credentials are incorrect, an error message is displayed.
+Upon successful login, the user’s credentials are verified. If the login is successful, they are redirected to the app's main dashboard, where they can manage their tasks. If the credentials are incorrect, an error message is displayed.
 
 ## Screenshots
 ![Login Page](./screenshots/login-page.png)

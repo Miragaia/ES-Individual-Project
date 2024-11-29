@@ -18,8 +18,8 @@ The task creation page includes a form where users can input the following:
   - Title
   - Description 
   - Deadline
-  - Category
   - Priority (Low, Medium, High)
+Category will be added to the Task after creation.
 
 When the user submits the form, the task is validated and saved to the database. The newly created task then appears in the main task list.
 
