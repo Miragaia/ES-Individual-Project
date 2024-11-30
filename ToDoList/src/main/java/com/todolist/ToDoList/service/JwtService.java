@@ -15,6 +15,23 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
+
 @Service
 public class JwtService {
 
@@ -24,9 +41,52 @@ public class JwtService {
     private int accessExpTime;
     @Value("${jwt.expirationtime.refresh}")
     private int refreshExpTime;
-    
+
+    @Value("${aws.cognito.jwks.url}")
+    private String jwksUrl; // Cognito's JWKS URL
+
+
+    // Method to get the public key from Cognito's JWKS
+    private PublicKey getPublicKey(String kid) throws Exception {
+        URL url = new URL(jwksUrl);
+        JWKSet jwkSet = JWKSet.load(url.openStream());
+        JWK jwk = jwkSet.getKeyByKeyId(kid);
+        if (jwk == null) {
+            throw new Exception("No matching key found for kid: " + kid);
+        }
+        return jwk.toRSAKey().toPublicKey();
+    }
+
+    // Method to validate JWT
+    public boolean validateJwt(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String kid = signedJWT.getHeader().getKeyID();  // Get the 'kid' from the JWT header
+
+            // Retrieve the public key from Cognito's JWKS
+            PublicKey publicKey = getPublicKey(kid);
+
+            // Verify the JWT using RSASSA with the public key
+            signedJWT.verify(new RSASSAVerifier((RSAPublicKey) publicKey));
+
+            // Optionally, validate claims
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            return !claims.getExpirationTime().before(new Date()); // Check if token is expired
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public String extractSubject(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String generateToken(UserDetails user) {

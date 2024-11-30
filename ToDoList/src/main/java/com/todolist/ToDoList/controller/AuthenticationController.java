@@ -59,74 +59,74 @@ public class AuthenticationController {
         this.restTemplate = restTemplate;
     }
 
-    @Operation(summary = "Create a new user", description = "Creates a new user in the system")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid user data"),
-            @ApiResponse(responseCode = "409", description = "User already exists")
-    })
-    @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest newUser) {
-        logger.info("Attempting to create a new user");
-        // Create a new user object with the data from the request
-        User user = new User();
-        user.setUsername(newUser.getUsername());
-        user.setEmail(newUser.getEmail());
-        user.setPassword(newUser.getPassword());
+    // @Operation(summary = "Create a new user", description = "Creates a new user in the system")
+    // @ApiResponses(value = {
+    //         @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+    //         @ApiResponse(responseCode = "400", description = "Invalid user data"),
+    //         @ApiResponse(responseCode = "409", description = "User already exists")
+    // })
+    // @PostMapping("/register")
+    // public ResponseEntity<User> createUser(@RequestBody CreateUserRequest newUser) {
+    //     logger.info("Attempting to create a new user");
+    //     // Create a new user object with the data from the request
+    //     User user = new User();
+    //     user.setUsername(newUser.getUsername());
+    //     user.setEmail(newUser.getEmail());
+    //     user.setPassword(newUser.getPassword());
 
-        // Check if the user is valid
-        if (!userService.isUserValid(user)) {
-            logger.error("Invalid user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    //     // Check if the user is valid
+    //     if (!userService.isUserValid(user)) {
+    //         logger.error("Invalid user");
+    //         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    //     }
 
-        //confirm username already exists
-        if (userService.userExistsByUsername(user.getUsername())) {
-            logger.error("User username already exists");
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+    //     //confirm username already exists
+    //     if (userService.userExistsByUsername(user.getUsername())) {
+    //         logger.error("User username already exists");
+    //         return new ResponseEntity<>(HttpStatus.CONFLICT);
+    //     }
 
-        // Check if the user already exists by its email
-        if (userService.userExistsByEmail(user.getEmail())) {
-            logger.error("User email already exists");
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        User createdUser = userService.createUser(user);
-        logger.info("User created successfully");
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-    }
+    //     // Check if the user already exists by its email
+    //     if (userService.userExistsByEmail(user.getEmail())) {
+    //         logger.error("User email already exists");
+    //         return new ResponseEntity<>(HttpStatus.CONFLICT);
+    //     }
+    //     User createdUser = userService.createUser(user);
+    //     logger.info("User created successfully");
+    //     return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    // }
 
-    @Operation(summary = "Login a user", description = "Logs in a user to the system")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid user data"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(
-            @Parameter(description = "User email") @RequestParam String email,
-            @Parameter(description = "User password") @RequestParam String password) {
+    // @Operation(summary = "Login a user", description = "Logs in a user to the system")
+    // @ApiResponses(value = {
+    //         @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+    //         @ApiResponse(responseCode = "400", description = "Invalid user data"),
+    //         @ApiResponse(responseCode = "404", description = "User not found")
+    // })
+    // @PostMapping("/login")
+    // public ResponseEntity<Map<String, String>> loginUser(
+    //         @Parameter(description = "User email") @RequestParam String email,
+    //         @Parameter(description = "User password") @RequestParam String password) {
 
-        logger.info("Attempting to login a user");
+    //     logger.info("Attempting to login a user");
 
-        UserDetails user = userService.loadUserByEmail(email);
+    //     UserDetails user = userService.loadUserByEmail(email);
 
-        // Check if the password is correct
-        if (!userService.isPasswordCorrect(password, user.getPassword())) {
-            logger.error("Invalid password");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    //     // Check if the password is correct
+    //     if (!userService.isPasswordCorrect(password, user.getPassword())) {
+    //         logger.error("Invalid password");
+    //         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    //     }
         
-        // Generate a JWT token for the user
-        String token = jwtService.generateToken(user);
+    //     // Generate a JWT token for the user
+    //     String token = jwtService.generateToken(user);
 
-        // Return the token in the response's body
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
+    //     // Return the token in the response's body
+    //     Map<String, String> response = new HashMap<>();
+    //     response.put("token", token);
 
-        logger.info("User logged in successfully, JWT token generated");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+    //     logger.info("User logged in successfully, JWT token generated");
+    //     return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
 
     @PostMapping("/exchange")
     public ResponseEntity<Map<String, String>> exchangeCodeForTokens(
