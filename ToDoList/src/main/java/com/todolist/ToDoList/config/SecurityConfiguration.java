@@ -38,7 +38,9 @@ public class SecurityConfiguration {
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/"))
+            .logout(logout -> logout.logoutSuccessUrl("/"));  
             System.out.println("SecurityConfiguration: " + http);
             System.out.println("jwtAuthenticationFilter: " + jwtAuthenticationFilter);
         return http.build();
