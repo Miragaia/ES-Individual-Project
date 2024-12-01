@@ -31,22 +31,17 @@ public class CategoryController {
         this.taskService = taskService;
     }
 
-    @PostMapping    //done
+    @PostMapping  
     public ResponseEntity<Category> createCategory(@AuthenticationPrincipal Jwt jwt, @RequestBody Category category) {
 
         String userSub = jwt.getClaim("sub");
-        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
-        System.out.println("User: " + user);
         
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        System.out.println("User ID for category: " + user.getId());
-
 
         category.setUser(user);
 
@@ -54,11 +49,10 @@ public class CategoryController {
         return ResponseEntity.ok(createdCategory);
     }
 
-    @GetMapping("/user")    //done
+    @GetMapping("/user")
     public ResponseEntity<List<Category>> getUserCategories(@AuthenticationPrincipal Jwt jwt) {
 
         String userSub = jwt.getClaim("sub");
-        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
@@ -70,14 +64,13 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @PutMapping("/{taskId}/category/{categoryId}")  //done
+    @PutMapping("/{taskId}/category/{categoryId}")
     public ResponseEntity<Task> assignCategoryToTask(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID taskId,
             @PathVariable UUID categoryId) {
 
         String userSub = jwt.getClaim("sub");
-        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);

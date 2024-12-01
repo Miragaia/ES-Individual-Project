@@ -24,13 +24,13 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID")
     private UUID id;
 
-    @Column(name = "email", unique = true, length = 255) // Nullable if not always provided
+    @Column(name = "email", unique = true, length = 255)
     private String email;
 
-    @Column(name = "username", unique = true, length = 255) // Nullable if not always provided
+    @Column(name = "username", unique = true, length = 255)
     private String username;
 
-    @Column(name = "user_sub", nullable = false, unique = true, length = 36) // Ensures userSub is unique
+    @Column(name = "user_sub", nullable = false, unique = true, length = 36)
     private String userSub;
 
     @CreationTimestamp

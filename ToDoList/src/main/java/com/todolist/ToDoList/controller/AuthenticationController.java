@@ -1,22 +1,12 @@
 package com.todolist.ToDoList.controller;
 
 import com.todolist.ToDoList.model.User;
-import com.todolist.ToDoList.DTO.CreateUserRequest;
 import com.todolist.ToDoList.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.todolist.ToDoList.service.UserService;
-import com.todolist.ToDoList.service.JwtService;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.client.RestTemplate;
@@ -25,8 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.auth0.jwt.JWT;
@@ -38,16 +26,16 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 public class AuthenticationController {
 
     @Value("${spring.security.oauth2.client.registration.cognito.clientId}")
-    private String clientId; // Your Cognito app client ID
+    private String clientId;
 
     @Value("${spring.security.oauth2.client.registration.cognito.clientSecret}")
-    private String clientSecret; // Your Cognito app client secret
+    private String clientSecret;
 
     @Value("${spring.security.oauth2.client.registration.cognito.redirect-uri}")
-    private String redirectUri; // The redirect URI you configured in Cognito
+    private String redirectUri;
 
     @Value("${spring.security.oauth2.client.provider.cognito.token-uri}")
-    private String tokenEndpoint; // The Cognito token endpoint
+    private String tokenEndpoint;
 
     private final RestTemplate restTemplate;
     private final UserService userService;
@@ -104,29 +92,24 @@ public class AuthenticationController {
                 String accessToken = responseBody.get("access_token");
                 String refreshToken = responseBody.get("refresh_token");
                 String idToken = responseBody.get("id_token");
-                
-                System.out.println("Access Token: " + accessToken);
-                System.out.println("Refresh Token: " + refreshToken);
-                System.out.println("ID Token: " + idToken);
+
+                logger.info("Access Token: " + accessToken);
+                logger.info("Refresh Token: " + refreshToken);
 
                 // Decode the idToken to extract claims
                 DecodedJWT decodedJWT = JWT.decode(idToken);
                 String userSub = decodedJWT.getClaim("sub").asString();
 
-                System.out.println("Cognito Sub 123: " + userSub);
 
                 // Check if the user already exists
                 User user = userService.getUserBySub(userSub);
-                System.out.println("UserAuthCont: " + user);
 
                 if (user == null) {
                     // If the user does not exist, create a new user
                     User newUser = new User();
-                    System.out.println("New user created " + newUser);
                     newUser.setUserSub(userSub);
-                    System.out.println("Added userSub to newuser: " + newUser);
                     userService.createUser(newUser);
-                    System.out.println("New user created with sub: " + userSub);
+                    logger.info("Created new user: " + newUser);
                 }
 
                 // Return the tokens in the response
@@ -138,8 +121,8 @@ public class AuthenticationController {
 
                 // Add CORS headers to the response
                 HttpHeaders responseHeaders = new HttpHeaders();
-                responseHeaders.add("Access-Control-Allow-Origin", "*"); // Allow the frontend to access the response
-                responseHeaders.add("Access-Control-Allow-Credentials", "true"); // Allow cookies and credentials in cross-origin requests      (maybe tirar)
+                responseHeaders.add("Access-Control-Allow-Origin", "*");
+                responseHeaders.add("Access-Control-Allow-Credentials", "true");
 
                 return ResponseEntity.ok(tokens);
             } else {
@@ -147,7 +130,6 @@ public class AuthenticationController {
             }
 
         } catch (Exception e) {
-            // Handle any errors during the exchange
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
