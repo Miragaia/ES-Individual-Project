@@ -89,6 +89,19 @@ public class JwtService {
         }
     }
 
+    //Extract email from the token from cognito
+    public String extractEmail(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            String email = claims.getStringClaim("email");  // Extract email from the claims
+            return email;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public String generateToken(UserDetails user) {
         return generateToken(new HashMap<>(), user, accessExpTime);
     }

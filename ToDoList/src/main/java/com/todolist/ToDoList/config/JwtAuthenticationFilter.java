@@ -33,17 +33,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("Request URL: " + request.getRequestURL());
+        System.out.println("Request Method: " + request.getMethod());
+        System.out.println("Authorization Header: " + request.getHeader("Authorization"));
+
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
-        String username = null;
+        String email = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            System.out.println("JWT found in Authorization header");
             jwt = authHeader.substring(7); // Extract the JWT
-            username = jwtService.extractSubject(jwt); // Extract the username (subject) from the token
+            System.out.println("JWT: " + jwt);
+            email = jwtService.extractEmail(jwt); // Extract the email from the token
+            System.out.println("Email: " + email);
+
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.loadUserByEmail(username);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userService.loadUserByEmail(email);
 
             if (jwtService.validateJwt(jwt)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

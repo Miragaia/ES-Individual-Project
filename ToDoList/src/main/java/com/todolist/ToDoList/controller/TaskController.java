@@ -12,6 +12,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.oauth2.jwt.Jwt;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +35,9 @@ public class TaskController {
     // Create Task - requires authentication    - done
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
+
+        System.out.println("Inside createTask");
+
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
         System.out.println("User: " + user);
@@ -86,7 +94,12 @@ public class TaskController {
 
     // Get All Tasks for Authenticated User - done
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser() {
+    public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser(@AuthenticationPrincipal Jwt jwt) {
+        System.out.println("Inside getAllTasksForAuthenticatedUser");
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
         // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser();
         
