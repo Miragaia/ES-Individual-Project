@@ -34,12 +34,15 @@ public class TaskController {
 
     // Create Task - requires authentication    - done
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    public ResponseEntity<Task> createTask(@AuthenticationPrincipal Jwt jwt, @RequestBody Task task) {
 
         System.out.println("Inside createTask");
 
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
         System.out.println("User: " + user);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -54,10 +57,13 @@ public class TaskController {
 
     // Edit Task - requires authentication and ownership    - done
     @PutMapping("/{id}")
-    public ResponseEntity<Task> editTask(@PathVariable UUID id, @RequestBody Task task) {
+    public ResponseEntity<Task> editTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @RequestBody Task task) {
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Check if the task belongs to the authenticated user
         if (user == null) {
@@ -76,10 +82,13 @@ public class TaskController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@RequestParam UUID id) {
+    public ResponseEntity<Task> getTaskById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Get the task
         Task task = taskService.getTaskById(id);
@@ -97,12 +106,17 @@ public class TaskController {
     public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser(@AuthenticationPrincipal Jwt jwt) {
         System.out.println("Inside getAllTasksForAuthenticatedUser");
 
+        //get all jwt claims
+        String jwtClaims = jwt.getClaims().toString();
+        System.out.println("JWT Claims: " + jwtClaims);
+
+        System.out.println("JWT: " + jwt);
         String userSub = jwt.getClaim("sub");
         System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
-        
+        User user = authHandler.getAuthenticatedUser(userSub);
+        System.out.println("UserTaskController: " + user);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -114,11 +128,17 @@ public class TaskController {
 
     @GetMapping("/filter")
     public ResponseEntity<List<Task>> getTasksByFilters(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy) {
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         
-        User user = authHandler.getAuthenticatedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -153,10 +173,13 @@ public class TaskController {
 
     // Delete Task - done
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Get the task
         Task task = taskService.getTaskById(id);

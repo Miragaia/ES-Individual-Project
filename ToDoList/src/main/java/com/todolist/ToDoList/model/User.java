@@ -24,22 +24,22 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID")
     private UUID id;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "email", unique = true, length = 255) // Nullable if not always provided
     private String email;
 
-    @Column(name = "username", nullable = false, unique = true, length = 255)
+    @Column(name = "username", unique = true, length = 255) // Nullable if not always provided
     private String username;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "user_sub", nullable = false, unique = true, length = 36) // Ensures userSub is unique
+    private String userSub;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String email, String username, String password) {
+    public User(String email, String username, String userSub) {
         this.email = email;
         this.username = username;
-        this.password = password;
+        this.userSub = userSub;
     }
 }

@@ -50,12 +50,14 @@ public class AuthenticationController {
     private String tokenEndpoint; // The Cognito token endpoint
 
     private final RestTemplate restTemplate;
+    private final UserService userService;
 
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @Autowired
-    public AuthenticationController(RestTemplate restTemplate) {
+    public AuthenticationController(RestTemplate restTemplate, UserService userService) {
         this.restTemplate = restTemplate;
+        this.userService = userService;
     }
 
     @PostMapping("/exchange")
@@ -109,15 +111,29 @@ public class AuthenticationController {
 
                 // Decode the idToken to extract claims
                 DecodedJWT decodedJWT = JWT.decode(idToken);
-                String cognitoEmail= decodedJWT.getClaim("cognito:email").asString();
+                String userSub = decodedJWT.getClaim("sub").asString();
 
-                System.out.println("Cognito Email: " + cognitoEmail);
+                System.out.println("Cognito Sub 123: " + userSub);
+
+                // Check if the user already exists
+                User user = userService.getUserBySub(userSub);
+                System.out.println("UserAuthCont: " + user);
+
+                if (user == null) {
+                    // If the user does not exist, create a new user
+                    User newUser = new User();
+                    System.out.println("New user created " + newUser);
+                    newUser.setUserSub(userSub);
+                    System.out.println("Added userSub to newuser: " + newUser);
+                    userService.createUser(newUser);
+                    System.out.println("New user created with sub: " + userSub);
+                }
 
                 // Return the tokens in the response
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("accessToken", accessToken);
                 tokens.put("refreshToken", refreshToken);
-                tokens.put("cognitoEmail", cognitoEmail);
+                tokens.put("cognitoEmail", userSub);
 
 
                 // Add CORS headers to the response

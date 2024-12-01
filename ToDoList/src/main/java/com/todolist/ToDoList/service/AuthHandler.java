@@ -15,16 +15,14 @@ public class AuthHandler {
     }
 
     // Method to retrieve the authenticated user
-    public User getAuthenticatedUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public User getAuthenticatedUser(String userSub) {
 
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            System.out.println("Username: " + username);
-            System.out.println("User" + userService.getUserByEmail(username));
-            return userService.getUserByEmail(username);  // Fetch the User entity by username
+        User user = userService.getUserBySub(userSub);
+        if (user == null) {
+            return null;
         }
 
-        return null;
+        System.out.println("UserAuthHandler" + user);
+        return user;
     }
 }

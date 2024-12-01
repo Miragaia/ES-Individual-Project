@@ -8,6 +8,8 @@ import com.todolist.ToDoList.service.TaskService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.todolist.ToDoList.service.AuthHandler;
@@ -30,10 +32,13 @@ public class CategoryController {
     }
 
     @PostMapping    //done
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+    public ResponseEntity<Category> createCategory(@AuthenticationPrincipal Jwt jwt, @RequestBody Category category) {
 
-         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         System.out.println("User: " + user);
         
         if (user == null) {
@@ -50,8 +55,13 @@ public class CategoryController {
     }
 
     @GetMapping("/user")    //done
-    public ResponseEntity<List<Category>> getUserCategories() {
-        User user = authHandler.getAuthenticatedUser();
+    public ResponseEntity<List<Category>> getUserCategories(@AuthenticationPrincipal Jwt jwt) {
+
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -62,11 +72,16 @@ public class CategoryController {
 
     @PutMapping("/{taskId}/category/{categoryId}")  //done
     public ResponseEntity<Task> assignCategoryToTask(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID taskId,
             @PathVariable UUID categoryId) {
 
-        // Authenticate the user
-        User user = authHandler.getAuthenticatedUser();
+        String userSub = jwt.getClaim("sub");
+        System.out.println("User Sub: " + userSub);
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -93,13 +108,13 @@ public class CategoryController {
 
 
     @GetMapping("/{id}")    
-    public ResponseEntity<Category> getCategoryById(@RequestParam UUID id) {
+    public ResponseEntity<Category> getCategoryById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(category);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@RequestParam UUID id) {
+    public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
