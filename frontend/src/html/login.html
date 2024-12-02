@@ -23,8 +23,8 @@
             window.location.href = "index.html";
         } else {
             // Exchange authorization code for tokens
-            const clientId = "39hvrchbdl9i7nf6t0dgnldlj4";
-            const clientSecret = "9sjq6dv2b0o02s7htimfev673jfoj92i40vdv7k90po03fujgvb";
+            const clientId = "cvdqu3l4h9ntg0e895a48eogv";
+            const clientSecret = "13rqnocvvur32d2rn0112qai290qimp1haeocom0vel8rom6s9ir";
             const redirectUri = "http://localhost:3000/login.html";
             const tokenEndpoint = "http://localhost:8080/api/auth/exchange";
 
@@ -37,8 +37,8 @@
                     grant_type: 'authorization_code',
                     code: code,  // The code returned from Cognito
                     redirect_uri: 'http://localhost:3000/login.html',  // The redirect URI
-                    client_id: '39hvrchbdl9i7nf6t0dgnldlj4',  // Your Cognito client ID
-                    client_secret: '9sjq6dv2b0o02s7htimfev673jfoj92i40vdv7k90po03fujgvb'
+                    client_id: 'cvdqu3l4h9ntg0e895a48eogv',  // Your Cognito client ID
+                    client_secret: '13rqnocvvur32d2rn0112qai290qimp1haeocom0vel8rom6s9ir'
                 })
             })
             .then(response => response.json())
