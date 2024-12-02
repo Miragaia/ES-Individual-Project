@@ -8,6 +8,8 @@ import com.todolist.ToDoList.service.TaskService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.todolist.ToDoList.service.AuthHandler;
@@ -29,19 +31,17 @@ public class CategoryController {
         this.taskService = taskService;
     }
 
-    @PostMapping    //done
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+    @PostMapping  
+    public ResponseEntity<Category> createCategory(@AuthenticationPrincipal Jwt jwt, @RequestBody Category category) {
 
-         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
-        System.out.println("User: " + user);
+        String userSub = jwt.getClaim("sub");
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        System.out.println("User ID for category: " + user.getId());
-
 
         category.setUser(user);
 
@@ -49,9 +49,13 @@ public class CategoryController {
         return ResponseEntity.ok(createdCategory);
     }
 
-    @GetMapping("/user")    //done
-    public ResponseEntity<List<Category>> getUserCategories() {
-        User user = authHandler.getAuthenticatedUser();
+    @GetMapping("/user")
+    public ResponseEntity<List<Category>> getUserCategories(@AuthenticationPrincipal Jwt jwt) {
+
+        String userSub = jwt.getClaim("sub");
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -60,13 +64,17 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @PutMapping("/{taskId}/category/{categoryId}")  //done
+    @PutMapping("/{taskId}/category/{categoryId}")
     public ResponseEntity<Task> assignCategoryToTask(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID taskId,
             @PathVariable UUID categoryId) {
 
-        // Authenticate the user
-        User user = authHandler.getAuthenticatedUser();
+        String userSub = jwt.getClaim("sub");
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -93,13 +101,13 @@ public class CategoryController {
 
 
     @GetMapping("/{id}")    
-    public ResponseEntity<Category> getCategoryById(@RequestParam UUID id) {
+    public ResponseEntity<Category> getCategoryById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(category);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@RequestParam UUID id) {
+    public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }

@@ -3,27 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <title>Logging In</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
-        </form>
-
-        <div id="message"></div>
-
-        <p>Don't have an account? <a href="index.html">Register here</a></p>
+        <h1>Logging You In</h1>
+        <p>Please wait...</p>
+        <div class="spinner"></div>
     </div>
 
-    <script src="../js/auth.js"></script>
+    <script>
+        // Extract code from URL
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+
+        if (!code) {
+            alert("Authorization failed. Please try logging in again.");
+            window.location.href = "index.html";
+        } else {
+            // Exchange authorization code for tokens
+            const clientId = "39hvrchbdl9i7nf6t0dgnldlj4";
+            const clientSecret = "9sjq6dv2b0o02s7htimfev673jfoj92i40vdv7k90po03fujgvb";
+            const redirectUri = "http://localhost:3000/login.html";
+            const tokenEndpoint = "http://localhost:8080/api/auth/exchange";
+
+            fetch("http://localhost:8080/api/auth/exchange", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code: code,  // The code returned from Cognito
+                    redirect_uri: 'http://localhost:3000/login.html',  // The redirect URI
+                    client_id: '39hvrchbdl9i7nf6t0dgnldlj4',  // Your Cognito client ID
+                    client_secret: '9sjq6dv2b0o02s7htimfev673jfoj92i40vdv7k90po03fujgvb'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Token exchange successful:", data);
+                if (data.accessToken) {
+                    localStorage.setItem("token", data.accessToken);
+                    window.location.href = "tasks.html";  // Redirect to the tasks page
+                } else {
+                    alert("Failed to log in. Please try again.");
+                    window.location.href = "index.html";
+                }
+            })
+            .catch(error => {
+                console.error("Error during token exchange:", error);
+                alert("Login failed. Please try again.");
+                window.location.href = "index.html";
+            });
+        }
+    </script>
 </body>
 </html>

@@ -5,12 +5,13 @@ import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.service.AuthHandler;
 import com.todolist.ToDoList.service.TaskService;
-import com.todolist.ToDoList.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.oauth2.jwt.Jwt;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,12 +28,15 @@ public class TaskController {
         this.authHandler = authHandler;
     }
 
-    // Create Task - requires authentication    - done
+    // Create Task - requires authentication
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    public ResponseEntity<Task> createTask(@AuthenticationPrincipal Jwt jwt, @RequestBody Task task) {
+
+        String userSub = jwt.getClaim("sub");
+
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
-        System.out.println("User: " + user);
+        User user = authHandler.getAuthenticatedUser(userSub);
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -44,22 +48,24 @@ public class TaskController {
         return ResponseEntity.ok(createdTask);
     }
 
-    // Edit Task - requires authentication and ownership    - done
+    // Edit Task - requires authentication and ownership
     @PutMapping("/{id}")
-    public ResponseEntity<Task> editTask(@PathVariable UUID id, @RequestBody Task task) {
+    public ResponseEntity<Task> editTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @RequestBody Task task) {
+
+        String userSub = jwt.getClaim("sub");
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Check if the task belongs to the authenticated user
         if (user == null) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if user is not authenticated
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         // Get the task and check if it belongs to the user
         Task existingTask = taskService.getTaskById(id);
         if (!existingTask.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if not the owner
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN); 
         }
 
         Task updatedTask = taskService.updateTask(existingTask, task);
@@ -68,17 +74,19 @@ public class TaskController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@RequestParam UUID id) {
+    public ResponseEntity<Task> getTaskById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
+
+        String userSub = jwt.getClaim("sub");
 
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Get the task
         Task task = taskService.getTaskById(id);
 
         // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if not the owner
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN); 
         }
 
         return ResponseEntity.ok(task);
@@ -86,10 +94,13 @@ public class TaskController {
 
     // Get All Tasks for Authenticated User - done
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser() {
+    public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser(@AuthenticationPrincipal Jwt jwt) {
+
+        String userSub = jwt.getClaim("sub");
+
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
-        
+        User user = authHandler.getAuthenticatedUser(userSub);
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -101,11 +112,16 @@ public class TaskController {
 
     @GetMapping("/filter")
     public ResponseEntity<List<Task>> getTasksByFilters(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy) {
+
+        String userSub = jwt.getClaim("sub");
+
+        // Get the currently authenticated user
+        User user = authHandler.getAuthenticatedUser(userSub);
         
-        User user = authHandler.getAuthenticatedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -140,17 +156,19 @@ public class TaskController {
 
     // Delete Task - done
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
 
+        String userSub = jwt.getClaim("sub");
+        
         // Get the currently authenticated user
-        User user = authHandler.getAuthenticatedUser();
+        User user = authHandler.getAuthenticatedUser(userSub);
 
         // Get the task
         Task task = taskService.getTaskById(id);
 
         // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);  // Forbidden if not the owner
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         taskService.deleteTask(id);

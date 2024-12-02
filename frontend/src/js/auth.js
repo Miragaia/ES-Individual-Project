@@ -1,83 +1,15 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const registerForm = document.getElementById('registerForm');
-    const loginForm = document.getElementById('loginForm');
-    const messageDiv = document.getElementById('message');
+const COGNITO_DOMAIN = "https://us-east-1fmicepjif.auth.us-east-1.amazoncognito.com";
+const CLIENT_ID = "39hvrchbdl9i7nf6t0dgnldlj4";
+const REDIRECT_URI = "http://localhost:3000/index.html";
 
-    // Register
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    console.log("Logging out...");
+    // Construct the Cognito logout URL
+    const logoutUrl = `https://us-east-1fmicepjif.auth.us-east-1.amazoncognito.com/logout?client_id=39hvrchbdl9i7nf6t0dgnldlj4&logout_uri=http://localhost:3000/index.html`;
 
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    // Clear local storage
+    localStorage.removeItem("token");
 
-            try {
-                const response = await fetch('http://localhost:8080/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password
-                    })
-                });
-
-                if (response.ok) {
-                    messageDiv.textContent = 'Registration successful! You can now login.';
-                    messageDiv.style.color = 'green';
-                } else if (response.status === 409) {
-                    messageDiv.textContent = 'Username or Email already exists!';
-                    messageDiv.style.color = 'red';
-                } else {
-                    messageDiv.textContent = 'Failed to register. Please try again.';
-                    messageDiv.style.color = 'red';
-                }
-            } catch (error) {
-                messageDiv.textContent = 'Error occurred during registration.';
-                messageDiv.style.color = 'red';
-            }
-        });
-    }
-
-    // Login
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('http://localhost:8080/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        email: email,
-                        password: password
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('token', data.token);
-                    messageDiv.textContent = 'Login successful!';
-                    messageDiv.style.color = 'green';
-                    
-                    
-                    window.location.href = 'tasks.html';
-                } else {
-                    messageDiv.textContent = 'Invalid email or password!';
-                    messageDiv.style.color = 'red';
-                }
-            } catch (error) {
-                messageDiv.textContent = 'Error occurred during login.';
-                messageDiv.style.color = 'red';
-            }
-        });
-    }
+    // Redirect to the Cognito logout URL
+    window.location.href = logoutUrl;
 });

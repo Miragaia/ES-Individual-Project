@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fetch tasks
     function fetchTasks(categoryId = null) {
         let url = categoryId ? `${API_URL}/filterCategory?categoryId=${categoryId}` : API_URL;
+
+        const token = localStorage.getItem("token");
         
         fetch(url, {
             method: 'GET',
