@@ -1,5 +1,6 @@
 package com.todolist.ToDoList.service;
 
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
@@ -25,6 +26,7 @@ public class SecretsManagerService {
         this.objectMapper = objectMapper;
         this.secretsManagerClient = SecretsManagerClient.builder()
                 .region(Region.of("us-east-1"))  // Dynamically set the region
+                .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }
 

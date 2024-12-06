@@ -1,33 +1,15 @@
 package com.todolist.ToDoList.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.todolist.ToDoList.service.SecretsManagerService;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.annotation.PostConstruct;  // Jakarta annotation for lifecycle management
-
-import org.json.JSONObject;
-import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import software.amazon.awssdk.regions.Region;
-import org.springframework.context.annotation.ComponentScan;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DatabaseConfig {
@@ -42,20 +24,29 @@ public class DatabaseConfig {
     @PostConstruct
     public void initialize() {
         // Fetch secrets from Secrets Manager
-        Map<String, String> postgresSecret = secretManagerService.getSecrets("todolist-postgres-secret");
-        Map<String, String> springDataSourceSecret = secretManagerService.getSecrets("todolist-spring-datasource-secret");
+        Map<String, String> rdsSecrets = secretManagerService.getSecrets("todo-rds-db");
 
-        // Extract the values
-        String postgresUser = postgresSecret.get("POSTGRES_USER");
-        String postgresPassword = postgresSecret.get("POSTGRES_PASSWORD");
-        String postgresDb = postgresSecret.get("POSTGRES_DB");
+        // Extract RDS configuration
+        String rdsEndpoint = rdsSecrets.get("RDS_ENDPOINT");
+        String rdsUsername = rdsSecrets.get("POSTGRES_USER");
+        String rdsPassword = rdsSecrets.get("POSTGRES_PASSWORD");
+        String rdsDb = rdsSecrets.get("POSTGRES_DB");
 
-        String springDataSourceUrl = springDataSourceSecret.get("SPRING_DATASOURCE_URL");
-        String springDataSourceUsername = springDataSourceSecret.get("SPRING_DATASOURCE_USERNAME");
-        String springDataSourcePassword = springDataSourceSecret.get("SPRING_DATASOURCE_PASSWORD");
+        System.out.println("Retreved Database Secrets: " + rdsEndpoint + ", " + rdsUsername + ", " + rdsPassword + ", " + rdsDb);
 
-        // Configure DataSource or other necessary configurations
-        // ...
+        // Configure DataSource
+        System.setProperty("spring.datasource.url", "jdbc:postgresql://" + rdsEndpoint + ":5432/" + rdsDb);
+        System.setProperty("spring.datasource.username", rdsUsername);
+        System.setProperty("spring.datasource.password", rdsPassword);
+    }
+
+    @Bean
+    public DriverManagerDataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl(System.getProperty("spring.datasource.url"));
+        dataSource.setUsername(System.getProperty("spring.datasource.username"));
+        dataSource.setPassword(System.getProperty("spring.datasource.password"));
+        return dataSource;
     }
 }
-
