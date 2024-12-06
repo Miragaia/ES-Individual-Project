@@ -1,12 +1,14 @@
 version: '3.8'
+
 services:
   postgres-db:
     image: postgres:13
-    container_name: postgres-db  
+    container_name: postgres-db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}    # Inject AWS credentials
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      POSTGRES_SECRET_NAME: todolist-postgres-secret
     ports:
       - "5432:5432"
     volumes:
@@ -23,9 +25,14 @@ services:
     depends_on:
       - postgres-db
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # AWS credentials and region
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+
+      # Secrets Manager configuration
+      POSTGRES_SECRET_NAME: todolist-postgres-secret
+      SPRING_DATASOURCE_SECRET_NAME: todolist-spring-datasource-secret
     networks:
       - app-network
 
@@ -40,7 +47,7 @@ services:
     networks:
       - app-network
 
-networks: 
+networks:
   app-network:
 
 volumes:

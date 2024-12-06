@@ -18,13 +18,13 @@ public class SecretsManagerService {
     private final SecretsManagerClient secretsManagerClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${aws.region:us-east-1}") // Allow the region to be injected via properties file, default to us-east-1
-    private String awsRegion;
+    // @Value("${aws.region:us-east-1}") // Allow the region to be injected via properties file, default to us-east-1
+    // private String awsRegion;
 
     public SecretsManagerService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.secretsManagerClient = SecretsManagerClient.builder()
-                .region(Region.of(awsRegion))  // Dynamically set the region
+                .region(Region.of("us-east-1"))  // Dynamically set the region
                 .build();
     }
 
