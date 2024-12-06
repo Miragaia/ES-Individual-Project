@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // TASKS and CATEGORIES API URLs
     const API_URL = "http://localhost:8080/api/tasks";
     const CATEGORY_URL = "http://localhost:8080/api/categories";
-    
+
     // JWT token Storage
     const token = localStorage.getItem('token');
     console.log('Token:', token);
@@ -504,6 +504,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Modal Functions
 
+    console.log("Initial reload");
+
+    window.onload = function () {
+        const taskModal = document.getElementById("taskModal");
+        taskModal.style.display = "none";
+    };
+    
+
     //Open Modal
     // Open the modal for task creation
     openTaskModalBtn.addEventListener("click", function () {
@@ -606,7 +614,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    
+
+
     // Function calls (Initial)
 
     fetchUserCategoriesDropdown();
@@ -617,4 +626,5 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchFilteredAndSortedTasks();
 
     fetchTasks();
+
 });
