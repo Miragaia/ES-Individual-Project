@@ -1,48 +1,20 @@
 version: '3.8'
 
 services:
-  # postgres-db:
-  #   image: postgres:13
-  #   container_name: postgres-db
-  #   environment:
-  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}    # Inject AWS credentials
-  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-  #     AWS_REGION: ${AWS_REGION}
-  #     POSTGRES_SECRET_NAME: todolist-postgres-secret
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - app-network
-
   todolist:
-    build:
-      context: .
-      dockerfile: DockerFile
+    image: 891612543902.dkr.ecr.us-east-1.amazonaws.com/backend-repo:latest
     ports:
       - "8080:8080"
-    # depends_on:
-    #   - postgres-db
     environment:
-      # AWS credentials and region
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
-
-      # RDS Secrets Manager
       RDS_SECRET_NAME: todo-rds-db
-
-      # # Secrets Manager configuration
-      # POSTGRES_SECRET_NAME: todolist-postgres-secret
-      # SPRING_DATASOURCE_SECRET_NAME: todolist-spring-datasource-secret
     networks:
       - app-network
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: 891612543902.dkr.ecr.us-east-1.amazonaws.com/frontend-repo:latest
     ports:
       - "3000:80"
     depends_on:
@@ -52,6 +24,3 @@ services:
 
 networks:
   app-network:
-
-# volumes:
-#   postgres_data:

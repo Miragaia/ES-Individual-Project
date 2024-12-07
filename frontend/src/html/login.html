@@ -25,10 +25,10 @@
             // Exchange authorization code for tokens
             const clientId = "cvdqu3l4h9ntg0e895a48eogv";
             const clientSecret = "13rqnocvvur32d2rn0112qai290qimp1haeocom0vel8rom6s9ir";
-            const redirectUri = "http://localhost:3000/login.html";
-            const tokenEndpoint = "http://localhost:8080/api/auth/exchange";
+            const redirectUri = "http://44.223.86.210:3000/login.html";
+            const tokenEndpoint = "http://54.152.249.200:8080/api/auth/exchange";
 
-            fetch("http://localhost:8080/api/auth/exchange", {
+            fetch("http://54.152.249.200:8080/api/auth/exchange", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -36,7 +36,7 @@
                 body: new URLSearchParams({
                     grant_type: 'authorization_code',
                     code: code,  // The code returned from Cognito
-                    redirect_uri: 'http://localhost:3000/login.html',  // The redirect URI
+                    redirect_uri: 'http://44.223.86.210:3000/login.html',  // The redirect URI
                     client_id: 'cvdqu3l4h9ntg0e895a48eogv',  // Your Cognito client ID
                     client_secret: '13rqnocvvur32d2rn0112qai290qimp1haeocom0vel8rom6s9ir'
                 })
