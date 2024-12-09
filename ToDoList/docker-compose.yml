@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   todolist:
-    image: 891612543902.dkr.ecr.us-east-1.amazonaws.com/backend-repo:latest
+    build:
+      context: .
+      dockerfile: DockerFile
     ports:
       - "8080:8080"
     environment:
@@ -14,7 +16,9 @@ services:
       - app-network
 
   frontend:
-    image: 891612543902.dkr.ecr.us-east-1.amazonaws.com/frontend-repo:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:80"
     depends_on:

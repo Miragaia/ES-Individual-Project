@@ -44,7 +44,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("http://44.223.86.210:3000"));
+        configuration.setAllowedOrigins(List.of("https://es-ua.ddns.net"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Access-Control-Allow-Origin"));
         configuration.setExposedHeaders(List.of("Authorization"));
