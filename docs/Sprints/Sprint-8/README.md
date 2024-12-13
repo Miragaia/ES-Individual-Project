@@ -9,13 +9,13 @@ This document provides an overview of the work completed, challenges faced, and 
 ### Story Points  
 - **To Do:** 0 points  
 - **In Progress:** 0 points  
-- **Done:** 14 points  
+- **Done:** 16 points  
 
 ### User Stories  
 - **Done:** 1  
 
 ### Tasks  
-- **Done:** 3  
+- **Done:** 4  
 
 ### Sprint Goals  
 - Finalize AWS Deployment (Load Balancers and API Gateway Configuration).  
