@@ -44,8 +44,11 @@ document.addEventListener('DOMContentLoaded', function () {
     sortBySelect.addEventListener("change", fetchFilteredAndSortedTasks);
 
     // TASKS and CATEGORIES API URLs
-    const API_URL = "http://localhost:8080/api/tasks";
-    const CATEGORY_URL = "http://localhost:8080/api/categories";
+    // const API_URL = "https://todo-alb-1656954845.us-east-1.elb.amazonaws.com:8080/api/tasks";
+    // const CATEGORY_URL = "https://todo-alb-1656954845.us-east-1.elb.amazonaws.com:8080/api/categories";
+
+    const API_URL = "https://cu77n6j1h0.execute-api.us-east-1.amazonaws.com/api/tasks";
+    const CATEGORY_URL = "https://cu77n6j1h0.execute-api.us-east-1.amazonaws.com/api/categories";
 
     // JWT token Storage
     const token = localStorage.getItem('token');
