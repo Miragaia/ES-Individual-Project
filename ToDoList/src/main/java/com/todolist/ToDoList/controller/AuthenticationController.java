@@ -2,20 +2,24 @@ package com.todolist.ToDoList.controller;
 
 import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.web.client.RestTemplate;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -48,20 +52,33 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Exchange authorization code for tokens",
+            description = "Exchanges a Cognito authorization code for access, refresh, and ID tokens.",
+            tags = {"Authentication"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tokens exchanged successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"accessToken\":\"<access_token>\", \"refreshToken\":\"<refresh_token>\", \"cognitoEmail\":\"<user_sub>\"}"))),
+            @ApiResponse(responseCode = "400", description = "Invalid request or missing parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"Code is required\"}"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"Failed to retrieve tokens\"}")))
+    })
     @PostMapping("/exchange")
     public ResponseEntity<Map<String, String>> exchangeCodeForTokens(
-        @RequestParam("code") String code,
-        @RequestParam("client_id") String clientId,
-        @RequestParam("client_secret") String clientSecret,
-        @RequestParam("redirect_uri") String redirectUri) {
+            @RequestParam("code") String code,
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("redirect_uri") String redirectUri) {
 
-        logger.info("Code: " + code);
-        
+        logger.info("Authorization Code: {}", code);
+
         if (code == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Code is required"));
         }
 
-        // Prepare the request body for exchanging the code for tokens using MultiValueMap
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("code", code);
@@ -69,67 +86,53 @@ public class AuthenticationController {
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
 
-        // Create the headers (Cognito expects application/x-www-form-urlencoded content type)
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // Build the form-encoded data
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(tokenEndpoint);
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
-            // Make the POST request to exchange the code for tokens
             ResponseEntity<Map> response = restTemplate.exchange(
-                uriBuilder.toUriString(),
-                HttpMethod.POST,
-                requestEntity,
-                Map.class
+                    uriBuilder.toUriString(),
+                    HttpMethod.POST,
+                    requestEntity,
+                    Map.class
             );
 
-            // Extract tokens from the response body
             Map<String, String> responseBody = response.getBody();
             if (responseBody != null) {
                 String accessToken = responseBody.get("access_token");
                 String refreshToken = responseBody.get("refresh_token");
                 String idToken = responseBody.get("id_token");
 
-                logger.info("Access Token: " + accessToken);
-                logger.info("Refresh Token: " + refreshToken);
+                logger.info("Access Token: {}", accessToken);
+                logger.info("Refresh Token: {}", refreshToken);
 
-                // Decode the idToken to extract claims
                 DecodedJWT decodedJWT = JWT.decode(idToken);
                 String userSub = decodedJWT.getClaim("sub").asString();
 
-
-                // Check if the user already exists
                 User user = userService.getUserBySub(userSub);
-
                 if (user == null) {
-                    // If the user does not exist, create a new user
                     User newUser = new User();
                     newUser.setUserSub(userSub);
                     userService.createUser(newUser);
-                    logger.info("Created new user: " + newUser);
+                    logger.info("Created new user: {}", newUser);
                 }
 
-                // Return the tokens in the response
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("accessToken", accessToken);
                 tokens.put("refreshToken", refreshToken);
                 tokens.put("cognitoEmail", userSub);
-
-
-                // Add CORS headers to the response
                 HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.add("Access-Control-Allow-Origin", "*");
                 responseHeaders.add("Access-Control-Allow-Credentials", "true");
-
                 return ResponseEntity.ok(tokens);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to retrieve tokens"));
             }
-
         } catch (Exception e) {
+            logger.error("Error during token exchange: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }

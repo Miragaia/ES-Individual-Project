@@ -5,6 +5,13 @@ import com.todolist.ToDoList.model.Task;
 import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.service.AuthHandler;
 import com.todolist.ToDoList.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +25,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Task Controller", description = "API for managing tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -28,89 +36,108 @@ public class TaskController {
         this.authHandler = authHandler;
     }
 
-    // Create Task - requires authentication
     @PostMapping
+    @Operation(summary = "Create a task", description = "Creates a new task for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Task created successfully",
+                     content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    })
     public ResponseEntity<Task> createTask(@AuthenticationPrincipal Jwt jwt, @RequestBody Task task) {
 
         String userSub = jwt.getClaim("sub");
 
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
 
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        
-        // Set the user who created the task
+
         task.setUser(user);
         task.setStatus(Status.TO_DO);
         Task createdTask = taskService.createTask(task);
         return ResponseEntity.ok(createdTask);
     }
 
-    // Edit Task - requires authentication and ownership
     @PutMapping("/{id}")
+    @Operation(summary = "Edit a task", description = "Updates an existing task for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Task updated successfully",
+                     content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - Task does not belong to user"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     public ResponseEntity<Task> editTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @RequestBody Task task) {
 
         String userSub = jwt.getClaim("sub");
 
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
 
-        // Check if the task belongs to the authenticated user
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        // Get the task and check if it belongs to the user
         Task existingTask = taskService.getTaskById(id);
         if (!existingTask.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN); 
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         Task updatedTask = taskService.updateTask(existingTask, task);
         return ResponseEntity.ok(updatedTask);
     }
 
-
     @GetMapping("/{id}")
+    @Operation(summary = "Get a task by ID", description = "Retrieves a task by its ID for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Task retrieved successfully",
+                     content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - Task does not belong to user"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     public ResponseEntity<Task> getTaskById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
 
         String userSub = jwt.getClaim("sub");
 
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
 
-        // Get the task
         Task task = taskService.getTaskById(id);
 
-        // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN); 
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         return ResponseEntity.ok(task);
     }
 
-    // Get All Tasks for Authenticated User - done
     @GetMapping
+    @Operation(summary = "Get all tasks", description = "Retrieves all tasks for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
+                     content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    })
     public ResponseEntity<List<Task>> getAllTasksForAuthenticatedUser(@AuthenticationPrincipal Jwt jwt) {
 
         String userSub = jwt.getClaim("sub");
 
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
 
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        // Get tasks for the authenticated user
         List<Task> tasks = taskService.getTasksByUserId(user.getId());
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/filter")
+    @Operation(summary = "Filter tasks", description = "Filters tasks based on status, category, or sort order.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Tasks filtered successfully",
+                     content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid filter parameter"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    })
     public ResponseEntity<List<Task>> getTasksByFilters(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) String status,
@@ -119,9 +146,8 @@ public class TaskController {
 
         String userSub = jwt.getClaim("sub");
 
-        // Get the currently authenticated user
         User user = authHandler.getAuthenticatedUser(userSub);
-        
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -129,7 +155,6 @@ public class TaskController {
         List<Task> tasks;
         Status statusEnum = null;
 
-        // Validate status if present
         if (status != null) {
             try {
                 statusEnum = Status.valueOf(status);
@@ -138,7 +163,6 @@ public class TaskController {
             }
         }
 
-        // Fetch tasks based on filters
         if (statusEnum != null && categoryId != null) {
             tasks = taskService.getTasksByStatusCategoryAndUser(statusEnum, categoryId, user, sortBy);
         } else if (statusEnum != null) {
@@ -152,21 +176,21 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-
-
-    // Delete Task - done
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a task", description = "Deletes a task by its ID for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - Task does not belong to user"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
 
         String userSub = jwt.getClaim("sub");
-        
-        // Get the currently authenticated user
+
         User user = authHandler.getAuthenticatedUser(userSub);
 
-        // Get the task
         Task task = taskService.getTaskById(id);
 
-        // Check if the task belongs to the authenticated user
         if (user == null || !task.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }

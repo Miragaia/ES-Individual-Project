@@ -6,6 +6,12 @@ import com.todolist.ToDoList.model.User;
 import com.todolist.ToDoList.service.CategoryService;
 import com.todolist.ToDoList.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +25,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/categories")
+@Tag(name = "Category Controller", description = "API for managing categories and their assignment to tasks")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -31,7 +38,12 @@ public class CategoryController {
         this.taskService = taskService;
     }
 
-    @PostMapping  
+    @Operation(summary = "Create a new category", description = "Creates a category for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Category created successfully", content = @Content(schema = @Schema(implementation = Category.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @PostMapping
     public ResponseEntity<Category> createCategory(@AuthenticationPrincipal Jwt jwt, @RequestBody Category category) {
 
         String userSub = jwt.getClaim("sub");
@@ -49,6 +61,11 @@ public class CategoryController {
         return ResponseEntity.ok(createdCategory);
     }
 
+    @Operation(summary = "Get user categories", description = "Retrieves all categories for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Categories retrieved successfully", content = @Content(schema = @Schema(implementation = List.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
     @GetMapping("/user")
     public ResponseEntity<List<Category>> getUserCategories(@AuthenticationPrincipal Jwt jwt) {
 
@@ -64,6 +81,12 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+    @Operation(summary = "Assign a category to a task", description = "Associates a category with a specific task for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Category assigned to task successfully", content = @Content(schema = @Schema(implementation = Task.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
     @PutMapping("/{taskId}/category/{categoryId}")
     public ResponseEntity<Task> assignCategoryToTask(
             @AuthenticationPrincipal Jwt jwt,
@@ -99,13 +122,22 @@ public class CategoryController {
         return ResponseEntity.ok(updatedTask);
     }
 
-
-    @GetMapping("/{id}")    
+    @Operation(summary = "Get a category by ID", description = "Fetches a specific category by its ID for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Category retrieved successfully", content = @Content(schema = @Schema(implementation = Category.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(category);
     }
 
+    @Operation(summary = "Delete a category", description = "Deletes a category by its ID for the authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Category deleted successfully", content = @Content),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID id) {
         categoryService.deleteCategory(id);
