@@ -15,7 +15,8 @@ This document provides an overview of the work completed, challenges faced, and 
 - **Done:** 2
 
 ### Sprint Goals
-- Implement User Authentication and start project backend
+- Implement User Authentication and start project backend.
+- Task Management
 
 ### Completed Work
 - [Task Ownership:](../../Epics/Task_Ownership/README.md)

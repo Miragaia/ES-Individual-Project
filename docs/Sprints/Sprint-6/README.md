@@ -24,7 +24,7 @@ This document provides an overview of the work completed, challenges faced, and 
 - AWS Integration:
   - IDP Authentication
   - Initialize AWS Deplyment (Create Vpc, Subnets, Security Groups)
-- Frontend Dockerization
+- Frontend Dockerization and Deployment
 
 ### Completed Work
 - [Project Configuration:](../../Epics/Project_Configuration/README.md)
