@@ -7,8 +7,10 @@ The Project Configuration epic involves setting up the foundational infrastructu
 - Spring Boot Initialization
 - Containerization of the Application
 - Authentication and Security
+- Frontend on Docker Container
 
 ## Goals
 - Initialize the Spring Boot environment.
 - Containerize the application for streamlined deployment.
 - Implement secure authentication and authorization mechanisms.
+- Use Nginx as reverse proxy

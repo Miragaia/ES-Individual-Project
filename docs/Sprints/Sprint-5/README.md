@@ -4,7 +4,7 @@ This document provides an overview of the work completed, challenges faced, and 
 [November 4th - November 25th]
 ---
 
-## Sprint 4: AWS Integration
+## Sprint 5: AWS Integration
 
 ### Story Points
 - **To Do:** 6 points
