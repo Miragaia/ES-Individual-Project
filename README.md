@@ -36,7 +36,7 @@
 |:---:|
 | Formatted as "As a (...), I want (...) so that (...)" |
 | Short and self-explanatory |
-| Defined story point, with a maximum of 3-5 |
+| Defined story point |
 | Acceptance criteria as "Given (...) when (...) then (...)" |
 | INVEST methodology |
 | Estimated priority, given by the position in the backlog |
