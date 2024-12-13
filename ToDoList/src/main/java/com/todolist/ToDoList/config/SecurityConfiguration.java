@@ -28,7 +28,7 @@ public class SecurityConfiguration {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/**", "/health").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -44,9 +44,20 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("https://es-ua.ddns.net"));
+        configuration.setAllowedOrigins(List.of("https://es-ua.ddns.net", "https://todo-alb-1656954845.us-east-1.elb.amazonaws.com", "https://cu77n6j1h0.execute-api.us-east-1.amazonaws.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Access-Control-Allow-Origin"));
+        configuration.setAllowedHeaders(List.of(
+            "Authorization", 
+            "Content-Type", 
+            "X-Requested-With", 
+            "Accept", 
+            "Access-Control-Allow-Origin", 
+            "x-amz-date", 
+            "x-amz-security-token", 
+            "x-api-key", 
+            "Access-Control-Allow-Methods", 
+            "Access-Control-Allow-Headers"
+        ));
         configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
