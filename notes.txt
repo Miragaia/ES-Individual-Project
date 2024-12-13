@@ -1,0 +1,18 @@
+user = todouser
+password = todopass
+
+dbname= todolist
+
+POSTGRES GUIDE:
+
+Switch to the PostgreSQL user:
+sudo -i -u postgres
+
+Open the PostgreSQL command line
+psql
+
+Exit PostgreSQL
+\q
+
+Exit the PostgreSQL user
+exit

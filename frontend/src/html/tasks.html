@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+    
+    <div class="container">
+        <h1>Your To-Do List</h1>
+        
+        <button id="openTaskModalBtn" class="create-task-btn">Create Task</button>
+        
+        <button id="openCategoryModalBtn" class="create-category-btn">Create Category</button>
+        <button id="viewCategoriesBtn" class="view-categories-btn">View Categories</button>
+
+        <div class="row" id="   ">
+            <label for="category">Filter by Category:</label>
+            <select id="category">
+                
+            </select>
+        </div>
+
+        <div class="row">
+            <label for="status">Filter by Status:</label>
+            <select id="status">
+                <option value="ALL">All</option>
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+            </select>
+        </div>
+
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy">
+            <option value="createdAt">Creation Date</option>
+            <option value="deadline">Deadline</option>
+        </select>
+
+        <!-- Table to display tasks -->
+        <div class="table-container">
+            <table id="taskTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Task -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pop-up Modal for Task Creation -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span id="closeTaskModalBtn" class="close">&times;</span>
+            <h2>Create New Task</h2>
+
+            <input type="text" id="taskTitle" placeholder="Task Title">
+            <textarea id="taskDescription" placeholder="Task Description"></textarea>
+
+            <label for="taskDeadline">Deadline:</label>
+            <input type="date" id="taskDeadline" placeholder="Select Deadline">
+
+            <label for="taskPriority">Priority:</label>
+            <select id="taskPriority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+    </div>
+
+    <!-- Task Edit Modal -->
+    <div id="taskModalEdit" class="modal">
+        <div class="modal-content">
+            <span id="closeTaskModalBtnEdit" class="close">&times;</span>
+            <h2>Edit Task</h2>
+            <input type="text" id="taskTitleEdit" placeholder="Task Title">
+            <textarea id="taskDescriptionEdit" placeholder="Task Description"></textarea>
+            <label for="taskDeadline">Deadline:</label>
+            <input type="date" id="taskDeadlineEdit" placeholder="Select Deadline">
+
+            <label for="taskPriority">Priority:</label>
+            <select id="taskPriorityEdit">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+
+            <label for="taskStatus">Status:</label>
+            <select id="taskStatus">
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+            </select>
+
+            <label for="taskCategoryEdit">Category:</label>
+            <select id="taskCategoryEdit">
+                <option value="">None</option>
+                <!--Categories-->
+            </select>
+            <button id="editTaskBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <!--Create Category Modal-->
+    <div id="catModal" class="modal">
+        <div class="modal-content">
+            <span id="closeCatModalBtn" class="close">&times;</span>
+            <h2>Create New Category</h2>
+
+            <input type="text" id="catTitle" placeholder="Category Title">
+            <textarea id="catDescription" placeholder="Category Description"></textarea>
+
+            <button id="addCatBtn">Add Category</button>
+        </div>
+    </div>
+
+    <!-- Modal to Display Categories -->
+    <div id="viewCategoriesModal" class="modal">
+        <div class="modal-content">
+            <span id="closeViewCategoriesModalBtn" class="close">&times;</span>
+            <h2>Your Categories</h2>
+            <ul id="categoriesList">
+
+            </ul>
+        </div>
+    </div>
+
+    <!-- Category Selection Modal for Assigning a Category to a Task -->
+    <div id="assignCategoryModal" class="modal">
+        <div class="modal-content">
+            <span id="closeAssignCategoryModalBtn" class="close">&times;</span>
+            <h2>Assign Category</h2>
+            <select id="categorySelect">
+                <!--Categories-->
+            </select>
+            <button id="assignCategoryBtn">Assign Category</button>
+        </div>
+    </div>
+
+
+
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>
